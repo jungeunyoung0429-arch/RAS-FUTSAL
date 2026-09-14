@@ -3,18 +3,14 @@ import { Redis } from "@upstash/redis";
 const redis = Redis.fromEnv();
 const KEY = "ras2026";
 
-/* ── 접속 링크 ───────────────────────────────────────────────
-   아래 값을 바꾸면 새 링크가 됩니다. 바꾼 뒤에는 Vercel이 자동으로
-   다시 배포하므로 별도 작업이 필요 없습니다.
+/* ── 접속 코드 ───────────────────────────────────────────────
+   아래 "2026" 을 바꾸면 새 코드가 됩니다. 바꾼 뒤 GitHub에 올리면
+   Vercel이 자동으로 다시 배포하므로 별도 작업이 필요 없습니다.
 
-   0 = 본부(모든 구장) / 1 = A구장 / 2 = B구장 / 3 = C구장 / 4 = D구장
+   링크: https://ras-futsal.vercel.app/staff?t=2026
 ────────────────────────────────────────────────────────── */
 const TOKENS = {
-  "hq-9f2k7m": 0,
-  "ct-a4x1p8": 1,
-  "ct-b7n3q2": 2,
-  "ct-c2v9s5": 3,
-  "ct-d5h6w1": 4,
+  "2026": 0,   // 접속 코드 — 기록원과 지원단이 함께 씁니다
 };
 const LABEL = { 0: "본부 · 전체 구장", 1: "A구장", 2: "B구장", 3: "C구장", 4: "D구장" };
 
@@ -65,8 +61,9 @@ export default async function handler(req, res) {
         delete data.logs[body.id];
       } else {
         data.scores[body.id] = body.score;
-        if (body.log && (body.log.note || body.log.video ||
-            (body.log.ref && (body.log.ref.main || body.log.ref.asst || body.log.ref.rec)))) {
+        const L = body.log;
+        if (L && (L.note || L.video || (L.mvp && L.mvp.no) ||
+            (L.ref && (L.ref.main || L.ref.asst || L.ref.rec)))) {
           data.logs[body.id] = body.log;
         } else {
           delete data.logs[body.id];
