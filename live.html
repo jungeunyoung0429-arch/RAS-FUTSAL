@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>실시간 현황 · 2026 RAS 풋살</title>
+<style>
+:root{
+  --bg:#07251B; --card:#0E3B2E; --card2:#0A3125; --line:#1C5742;
+  --ink:#F2FBF6; --mute:#8FBBA6; --grn:#0BC463; --lamp:#FFC53D; --live:#FF4D4D;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR","Malgun Gothic",sans-serif;
+  font-size:16px;line-height:1.4;padding-bottom:28px;overflow-x:hidden}
+
+header{padding:14px 16px 12px;border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+h1{margin:0;font-size:17px;font-weight:900;letter-spacing:-.02em}
+h1 span{display:block;font-size:10.5px;font-weight:800;color:var(--grn);letter-spacing:.1em;margin-bottom:3px}
+.clock{margin-left:auto;font-size:26px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.sub{width:100%;display:flex;align-items:center;gap:9px;font-size:12.5px;font-weight:700;color:var(--mute)}
+.sub .dot{width:7px;height:7px;border-radius:50%;background:var(--grn);animation:bl 1.6s infinite}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.25}}
+
+.dates{display:flex;gap:6px;overflow-x:auto;padding:11px 16px 0;scrollbar-width:none}
+.dates::-webkit-scrollbar{display:none}
+.dates button{flex:0 0 auto;padding:7px 13px;border:1px solid var(--line);border-radius:9px;
+  background:transparent;color:var(--mute);font:inherit;font-size:13px;font-weight:800;cursor:pointer}
+.dates button.on{background:var(--grn);border-color:var(--grn);color:#06301F}
+
+.grid{display:grid;grid-template-columns:1fr;gap:11px;padding:13px 16px 0;max-width:1500px;margin:0 auto}
+@media(min-width:720px){ .grid{grid-template-columns:1fr 1fr;gap:14px;padding:16px} }
+@media(min-width:1180px){ .grid{gap:18px} h1{font-size:21px} .clock{font-size:34px} }
+
+.ct{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;
+  display:flex;flex-direction:column}
+.ct.on{border-color:var(--live);box-shadow:0 0 0 1px var(--live) inset}
+.cth{display:flex;align-items:center;gap:9px;padding:9px 13px;background:var(--card2);
+  border-bottom:1px solid var(--line)}
+.cth em{font-style:normal;width:26px;height:26px;border-radius:7px;background:var(--grn);color:#06301F;
+  display:grid;place-items:center;font-size:15px;font-weight:900;flex:0 0 auto}
+.cth .nm{font-size:13.5px;font-weight:800}
+.cth .st{margin-left:auto;font-size:10.5px;font-weight:900;padding:3px 9px;border-radius:20px;
+  background:#174433;color:var(--mute);letter-spacing:.02em;white-space:nowrap}
+.ct.on .cth em{background:var(--live);color:#fff}
+.ct.on .cth .st{background:var(--live);color:#fff}
+.ct.done .cth .st{background:#1F6B4C;color:#B8E8CE}
+
+.body{padding:16px 13px;flex:1;display:flex;flex-direction:column;justify-content:center}
+.tm{font-size:11.5px;font-weight:800;color:var(--mute);text-align:center;margin-bottom:11px;
+  letter-spacing:.02em}
+.row{display:flex;align-items:center;gap:8px}
+.tname{flex:1;font-size:17px;font-weight:800;text-align:center;letter-spacing:-.03em;
+  word-break:keep-all;line-height:1.25}
+.sc{font-size:44px;font-weight:900;font-variant-numeric:tabular-nums;min-width:50px;text-align:center;
+  line-height:1;letter-spacing:-.04em}
+.sep{font-size:24px;font-weight:900;color:var(--line)}
+.ct.on .sc{color:var(--lamp)}
+@media(min-width:1180px){ .sc{font-size:62px;min-width:72px} .tname{font-size:22px} }
+
+.gl{margin-top:13px;border-top:1px solid var(--line);padding-top:10px;
+  display:flex;flex-wrap:wrap;gap:5px;justify-content:center}
+.gl span{font-size:11px;font-weight:700;color:var(--mute);background:#0A3125;
+  padding:3px 8px;border-radius:14px;white-space:nowrap}
+.gl span b{color:var(--ink);font-weight:800}
+.empty{text-align:center;color:var(--mute);font-size:13px;font-weight:700;padding:22px 0}
+
+.next{padding:9px 13px;border-top:1px solid var(--line);background:var(--card2);
+  font-size:11.5px;font-weight:700;color:var(--mute);text-align:center}
+.next b{color:var(--ink);font-weight:800}
+
+.foot{max-width:1500px;margin:16px auto 0;padding:0 16px;display:flex;gap:9px;flex-wrap:wrap}
+.top{max-width:1500px;margin:16px auto 0;padding:0 16px}
+.tophd{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:9px}
+.tophd h3{margin:0;font-size:15px;font-weight:900;letter-spacing:-.01em}
+.tophd h3::before{content:"⚽";margin-right:6px}
+.dtabs{display:flex;gap:5px;flex-wrap:wrap;margin-left:auto}
+.dtabs button{padding:6px 11px;border:1px solid var(--line);border-radius:8px;background:transparent;
+  color:var(--mute);font:inherit;font-size:12px;font-weight:800;cursor:pointer}
+.dtabs button.on{background:var(--lamp);border-color:var(--lamp);color:#3A2B00}
+.toptb{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.trow{display:flex;align-items:center;gap:9px;padding:11px 12px;border-top:1px solid var(--line)}
+.trow:first-child{border-top:0}
+.trow .rk{flex:0 0 22px;text-align:center;font-weight:900;color:var(--mute);font-size:13px}
+.trow .rk.m1{color:#FFD34D}.trow .rk.m2{color:#D6E4DC}.trow .rk.m3{color:#E0A36A}
+.trow .nm{flex:1 1 auto;min-width:0;font-weight:800;font-size:14px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.trow .tmn{flex:0 0 auto;color:var(--mute);font-size:12.5px;white-space:nowrap}
+.trow .gn{flex:0 0 46px;text-align:right;white-space:nowrap;font-size:11px;color:var(--mute);margin:0;border:0;padding:0}
+.trow .gn b{font-size:17px;font-weight:900;color:var(--grn);margin-right:2px}
+.topft{font-size:11.5px;color:var(--mute);margin-top:7px;padding-left:2px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:9px 14px;
+  font-size:12.5px;font-weight:800;color:var(--mute)}
+.pill b{color:var(--ink);font-size:15px;margin-left:5px}
+.err{margin:14px 16px 0;padding:11px 14px;border-radius:11px;background:#5A1A1A;
+  font-size:12.5px;font-weight:700;color:#FFD9D9;display:none}
+.err.on{display:block}
+.ytwrap{max-width:1500px;margin:14px auto 0;padding:0 16px}
+.ythd{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:800;color:var(--mute);
+  margin-bottom:8px;flex-wrap:wrap}
+.ythd b{color:var(--ink)}
+.ythd span{background:var(--live);color:#fff;font-size:10.5px;font-weight:900;padding:2px 9px;border-radius:20px}
+.ythd a{margin-left:auto;color:var(--grn);text-decoration:none;font-size:12.5px;font-weight:800}
+.yt{position:relative;width:100%;padding-top:56.25%;border-radius:14px;overflow:hidden;
+  background:#000;border:1px solid var(--line)}
+.yt iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+@media(min-width:1180px){ .ytwrap{max-width:900px} }
+.rp{display:block;padding:9px 13px;border-top:1px solid var(--line);background:#0A3125;
+  font-size:12px;font-weight:800;color:var(--grn);text-decoration:none;text-align:center}
+.rp:active{background:#0D3B2C}
+</style>
+
+<header>
+  <h1><span>2026 RAS FESTA · 학생주도 풋살</span>실시간 현황</h1>
+  <div class="clock" id="clk">--:--</div>
+  <div class="sub"><i class="dot"></i><span id="sub">불러오는 중…</span></div>
+</header>
+
+<div class="dates" id="dates"></div>
+<div class="err" id="err">점수를 불러오지 못했습니다. 잠시 뒤 다시 시도합니다.</div>
+<div id="yt"></div>
+<div class="grid" id="grid"></div>
+<div id="scorers"></div>
+<div class="foot" id="foot"></div>
+
+<script>
+/* ══ 경기 일정 ══ */
+const DATA = {"matches": [{"div": "중등남", "date": "10/19", "dow": "월", "slot": 1, "court": 1, "time": "17:30~17:45", "grp": "리그", "rd": "1R", "t1": "관산중", "t2": "중앙중", "id": "M001"}, {"div": "중등남", "date": "10/19", "dow": "월", "slot": 1, "court": 2, "time": "17:30~17:45", "grp": "리그", "rd": "1R", "t1": "해솔중", "t2": "원곡중", "id": "M002"}, {"div": "중등남", "date": "10/19", "dow": "월", "slot": 1, "court": 3, "time": "17:30~17:45", "grp": "리그", "rd": "10R", "t1": "부곡중", "t2": "본오중", "id": "M003"}, {"div": "중등남", "date": "10/19", "dow": "월", "slot": 3, "court": 1, "time": "18:10~18:25", "grp": "리그", "rd": "2R", "t1": "본오중", "t2": "관산중", "id": "M004"}, {"div": "중등남", "date": "10/19", "dow": "월", "slot": 3, "court": 2, "time": "18:10~18:25", "grp": "리그", "rd": "4R", "t1": "원곡중", "t2": "부곡중", "id": "M005"}, {"div": "중등남", "date": "10/19", "dow": "월", "slot": 3, "court": 3, "time": "18:10~18:25", "grp": "리그", "rd": "6R", "t1": "해솔중", "t2": "중앙중", "id": "M006"}, {"div": "중등남", "date": "10/19", "dow": "월", "slot": 5, "court": 1, "time": "18:50~19:05", "grp": "리그", "rd": "3R", "t1": "관산중", "t2": "해솔중", "id": "M007"}, {"div": "중등남", "date": "10/19", "dow": "월", "slot": 5, "court": 2, "time": "18:50~19:05", "grp": "리그", "rd": "5R", "t1": "중앙중", "t2": "본오중", "id": "M008"}, {"div": "중등여", "date": "10/21", "dow": "수", "slot": 1, "court": 1, "time": "17:30~17:45", "grp": "리그", "rd": "1R", "t1": "이호중", "t2": "별망중", "id": "M009"}, {"div": "중등여", "date": "10/21", "dow": "수", "slot": 1, "court": 2, "time": "17:30~17:45", "grp": "리그", "rd": "1R", "t1": "해솔중", "t2": "부곡중", "id": "M010"}, {"div": "중등여", "date": "10/21", "dow": "수", "slot": 1, "court": 3, "time": "17:30~17:45", "grp": "리그", "rd": "1R", "t1": "본오중", "t2": "원곡중", "id": "M011"}, {"div": "중등여", "date": "10/21", "dow": "수", "slot": 3, "court": 1, "time": "18:10~18:25", "grp": "리그", "rd": "2R", "t1": "별망중", "t2": "선일중", "id": "M012"}, {"div": "중등여", "date": "10/21", "dow": "수", "slot": 3, "court": 2, "time": "18:10~18:25", "grp": "리그", "rd": "2R", "t1": "원곡중", "t2": "이호중", "id": "M013"}, {"div": "중등여", "date": "10/21", "dow": "수", "slot": 3, "court": 3, "time": "18:10~18:25", "grp": "리그", "rd": "2R", "t1": "본오중", "t2": "해솔중", "id": "M014"}, {"div": "중등여", "date": "10/21", "dow": "수", "slot": 5, "court": 1, "time": "18:50~19:05", "grp": "리그", "rd": "3R", "t1": "선일중", "t2": "부곡중", "id": "M015"}, {"div": "중등여", "date": "10/21", "dow": "수", "slot": 5, "court": 2, "time": "18:50~19:05", "grp": "리그", "rd": "3R", "t1": "별망중", "t2": "원곡중", "id": "M016"}, {"div": "중등여", "date": "10/21", "dow": "수", "slot": 5, "court": 3, "time": "18:50~19:05", "grp": "리그", "rd": "3R", "t1": "이호중", "t2": "해솔중", "id": "M017"}, {"div": "중등남", "date": "10/26", "dow": "월", "slot": 1, "court": 1, "time": "17:30~17:45", "grp": "리그", "rd": "1R", "t1": "선일중", "t2": "원일중", "id": "M018"}, {"div": "중등남", "date": "10/26", "dow": "월", "slot": 1, "court": 2, "time": "17:30~17:45", "grp": "리그", "rd": "3R", "t1": "이호중", "t2": "성호중", "id": "M019"}, {"div": "중등남", "date": "10/26", "dow": "월", "slot": 1, "court": 3, "time": "17:30~17:45", "grp": "리그", "rd": "5R", "t1": "선부중", "t2": "원곡중", "id": "M061"}, {"div": "중등남", "date": "10/26", "dow": "월", "slot": 3, "court": 1, "time": "18:10~18:25", "grp": "리그", "rd": "2R", "t1": "원일중", "t2": "선부중", "id": "M020"}, {"div": "중등남", "date": "10/26", "dow": "월", "slot": 3, "court": 2, "time": "18:10~18:25", "grp": "리그", "rd": "5R", "t1": "선일중", "t2": "이호중", "id": "M021"}, {"div": "중등남", "date": "10/26", "dow": "월", "slot": 3, "court": 3, "time": "18:10~18:25", "grp": "리그", "rd": "6R", "t1": "성호중", "t2": "원곡중", "id": "M069"}, {"div": "중등남", "date": "10/26", "dow": "월", "slot": 5, "court": 1, "time": "18:50~19:05", "grp": "리그", "rd": "6R", "t1": "이호중", "t2": "원일중", "id": "M022"}, {"div": "중등남", "date": "10/26", "dow": "월", "slot": 5, "court": 2, "time": "18:50~19:05", "grp": "리그", "rd": "7R", "t1": "선부중", "t2": "성호중", "id": "M023"}, {"div": "중등남", "date": "10/26", "dow": "월", "slot": 5, "court": 3, "time": "18:50~19:05", "grp": "리그", "rd": "8R", "t1": "선일중", "t2": "원곡중", "id": "M156"}, {"div": "고등남", "date": "11/6", "dow": "금", "slot": 1, "court": 1, "time": "18:00~18:15", "grp": "리그", "rd": "1R", "t1": "원곡고", "t2": "안산공고", "id": "M024"}, {"div": "고등남", "date": "11/6", "dow": "금", "slot": 1, "court": 2, "time": "18:00~18:15", "grp": "리그", "rd": "1R", "t1": "고잔고", "t2": "송호고", "id": "M025"}, {"div": "고등남", "date": "11/6", "dow": "금", "slot": 1, "court": 3, "time": "18:00~18:15", "grp": "리그", "rd": "1R", "t1": "단원고", "t2": "신길고", "id": "M026"}, {"div": "고등남", "date": "11/6", "dow": "금", "slot": 1, "court": 4, "time": "18:00~18:15", "grp": "리그", "rd": "1R", "t1": "성안고", "t2": "초지고", "id": "M027"}, {"div": "고등남", "date": "11/6", "dow": "금", "slot": 2, "court": 1, "time": "18:20~18:35", "grp": "리그", "rd": "1R", "t1": "양지고", "t2": "광덕고", "id": "M028"}, {"div": "고등남", "date": "11/6", "dow": "금", "slot": 3, "court": 1, "time": "18:40~18:55", "grp": "리그", "rd": "2R", "t1": "안산공고", "t2": "동산고", "id": "M029"}, {"div": "고등남", "date": "11/6", "dow": "금", "slot": 3, "court": 2, "time": "18:40~18:55", "grp": "리그", "rd": "2R", "t1": "신길고", "t2": "원곡고", "id": "M030"}, {"div": "고등남", "date": "11/6", "dow": "금", "slot": 3, "court": 3, "time": "18:40~18:55", "grp": "리그", "rd": "2R", "t1": "초지고", "t2": "고잔고", "id": "M031"}, {"div": "고등남", "date": "11/6", "dow": "금", "slot": 4, "court": 1, "time": "19:00~19:15", "grp": "리그", "rd": "2R", "t1": "광덕고", "t2": "단원고", "id": "M032"}, {"div": "고등남", "date": "11/6", "dow": "금", "slot": 4, "court": 2, "time": "19:00~19:15", "grp": "리그", "rd": "2R", "t1": "양지고", "t2": "성안고", "id": "M033"}, {"div": "고등남", "date": "11/6", "dow": "금", "slot": 5, "court": 1, "time": "19:20~19:35", "grp": "리그", "rd": "3R", "t1": "동산고", "t2": "송호고", "id": "M034"}, {"div": "고등남", "date": "11/6", "dow": "금", "slot": 5, "court": 2, "time": "19:20~19:35", "grp": "리그", "rd": "3R", "t1": "안산공고", "t2": "신길고", "id": "M035"}, {"div": "고등남", "date": "11/6", "dow": "금", "slot": 5, "court": 3, "time": "19:20~19:35", "grp": "리그", "rd": "5R", "t1": "원곡고", "t2": "고잔고", "id": "M036"}, {"div": "중등남", "date": "11/14", "dow": "토", "slot": 1, "court": 1, "time": "08:30~08:45", "grp": "리그", "rd": "3R", "t1": "선일중", "t2": "본오중", "id": "M050"}, {"div": "중등남", "date": "11/14", "dow": "토", "slot": 1, "court": 2, "time": "08:30~08:45", "grp": "리그", "rd": "8R", "t1": "해솔중", "t2": "선부중", "id": "M077"}, {"div": "중등여", "date": "11/14", "dow": "토", "slot": 1, "court": 3, "time": "08:30~08:45", "grp": "리그", "rd": "5R", "t1": "원곡중", "t2": "해솔중", "id": "M049"}, {"div": "중등여", "date": "11/14", "dow": "토", "slot": 1, "court": 4, "time": "08:30~08:45", "grp": "리그", "rd": "7R", "t1": "본오중", "t2": "별망중", "id": "M059"}, {"div": "중등남", "date": "11/14", "dow": "토", "slot": 2, "court": 1, "time": "08:48~09:03", "grp": "리그", "rd": "1R", "t1": "이호중", "t2": "부곡중", "id": "M037"}, {"div": "중등남", "date": "11/14", "dow": "토", "slot": 2, "court": 2, "time": "08:48~09:03", "grp": "리그", "rd": "3R", "t1": "원일중", "t2": "중앙중", "id": "M048"}, {"div": "중등여", "date": "11/14", "dow": "토", "slot": 2, "court": 3, "time": "08:48~09:03", "grp": "리그", "rd": "10R", "t1": "부곡중", "t2": "선일중", "id": "M078"}, {"div": "중등여", "date": "11/14", "dow": "토", "slot": 3, "court": 3, "time": "09:06~09:21", "grp": "리그", "rd": "9R", "t1": "이호중", "t2": "원곡중", "id": "M076"}, {"div": "중등남", "date": "11/14", "dow": "토", "slot": 4, "court": 1, "time": "09:24~09:39", "grp": "리그", "rd": "4R", "t1": "해솔중", "t2": "선일중", "id": "M058"}, {"div": "중등남", "date": "11/14", "dow": "토", "slot": 4, "court": 2, "time": "09:24~09:39", "grp": "리그", "rd": "6R", "t1": "본오중", "t2": "선부중", "id": "M068"}, {"div": "중등여", "date": "11/14", "dow": "토", "slot": 4, "court": 3, "time": "09:24~09:39", "grp": "리그", "rd": "4R", "t1": "본오중", "t2": "부곡중", "id": "M040"}, {"div": "중등여", "date": "11/14", "dow": "토", "slot": 4, "court": 4, "time": "09:24~09:39", "grp": "리그", "rd": "4R", "t1": "해솔중", "t2": "별망중", "id": "M042"}, {"div": "중등남", "date": "11/14", "dow": "토", "slot": 5, "court": 1, "time": "09:42~09:57", "grp": "리그", "rd": "4R", "t1": "관산중", "t2": "이호중", "id": "M051"}, {"div": "중등남", "date": "11/14", "dow": "토", "slot": 5, "court": 2, "time": "09:42~09:57", "grp": "리그", "rd": "5R", "t1": "부곡중", "t2": "성호중", "id": "M055"}, {"div": "중등여", "date": "11/14", "dow": "토", "slot": 5, "court": 3, "time": "09:42~09:57", "grp": "리그", "rd": "4R", "t1": "원곡중", "t2": "선일중", "id": "M039"}, {"div": "중등여", "date": "11/14", "dow": "토", "slot": 6, "court": 3, "time": "10:00~10:15", "grp": "리그", "rd": "8R", "t1": "부곡중", "t2": "해솔중", "id": "M066"}, {"div": "중등여", "date": "11/14", "dow": "토", "slot": 6, "court": 4, "time": "10:00~10:15", "grp": "리그", "rd": "8R", "t1": "별망중", "t2": "이호중", "id": "M070"}, {"div": "중등남", "date": "11/14", "dow": "토", "slot": 7, "court": 1, "time": "10:18~10:33", "grp": "리그", "rd": "4R", "t1": "중앙중", "t2": "선부중", "id": "M054"}, {"div": "중등남", "date": "11/14", "dow": "토", "slot": 7, "court": 2, "time": "10:18~10:33", "grp": "리그", "rd": "7R", "t1": "본오중", "t2": "해솔중", "id": "M073"}, {"div": "중등여", "date": "11/14", "dow": "토", "slot": 7, "court": 3, "time": "10:18~10:33", "grp": "리그", "rd": "5R", "t1": "선일중", "t2": "본오중", "id": "M045"}, {"div": "중등남", "date": "11/14", "dow": "토", "slot": 8, "court": 1, "time": "10:36~10:51", "grp": "리그", "rd": "2R", "t1": "원곡중", "t2": "이호중", "id": "M043"}, {"div": "중등남", "date": "11/14", "dow": "토", "slot": 8, "court": 2, "time": "10:36~10:51", "grp": "리그", "rd": "6R", "t1": "관산중", "t2": "부곡중", "id": "M062"}, {"div": "중등여", "date": "11/14", "dow": "토", "slot": 8, "court": 3, "time": "10:36~10:51", "grp": "리그", "rd": "10R", "t1": "원곡중", "t2": "별망중", "id": "M079"}, {"div": "중등여", "date": "11/14", "dow": "토", "slot": 9, "court": 3, "time": "10:54~11:09", "grp": "리그", "rd": "5R", "t1": "부곡중", "t2": "이호중", "id": "M046"}, {"div": "중등여", "date": "11/14", "dow": "토", "slot": 9, "court": 4, "time": "10:54~11:09", "grp": "리그", "rd": "6R", "t1": "해솔중", "t2": "선일중", "id": "M056"}, {"div": "중등남", "date": "11/14", "dow": "토", "slot": 10, "court": 1, "time": "11:12~11:27", "grp": "리그", "rd": "2R", "t1": "성호중", "t2": "해솔중", "id": "M044"}, {"div": "중등남", "date": "11/14", "dow": "토", "slot": 10, "court": 2, "time": "11:12~11:27", "grp": "리그", "rd": "4R", "t1": "본오중", "t2": "원일중", "id": "M057"}, {"div": "중등여", "date": "11/14", "dow": "토", "slot": 10, "court": 3, "time": "11:12~11:27", "grp": "리그", "rd": "8R", "t1": "원곡중", "t2": "본오중", "id": "M067"}, {"div": "중등남", "date": "11/14", "dow": "토", "slot": 11, "court": 1, "time": "11:30~11:45", "grp": "리그", "rd": "7R", "t1": "중앙중", "t2": "이호중", "id": "M065"}, {"div": "중등남", "date": "11/14", "dow": "토", "slot": 11, "court": 2, "time": "11:30~11:45", "grp": "리그", "rd": "7R", "t1": "부곡중", "t2": "선일중", "id": "M071"}, {"div": "중등여", "date": "11/14", "dow": "토", "slot": 11, "court": 3, "time": "11:30~11:45", "grp": "리그", "rd": "6R", "t1": "별망중", "t2": "부곡중", "id": "M053"}, {"div": "중등남", "date": "11/14", "dow": "토", "slot": 12, "court": 1, "time": "11:48~12:03", "grp": "리그", "rd": "7R", "t1": "원곡중", "t2": "관산중", "id": "M074"}, {"div": "중등여", "date": "11/14", "dow": "토", "slot": 12, "court": 3, "time": "11:48~12:03", "grp": "리그", "rd": "7R", "t1": "선일중", "t2": "이호중", "id": "M063"}, {"div": "중등여", "date": "11/14", "dow": "토", "slot": 12, "court": 4, "time": "11:48~12:03", "grp": "리그", "rd": "9R", "t1": "해솔중", "t2": "본오중", "id": "M072"}, {"div": "중등남", "date": "11/14", "dow": "토", "slot": 13, "court": 1, "time": "12:06~12:21", "grp": "리그", "rd": "1R", "t1": "성호중", "t2": "본오중", "id": "M038"}, {"div": "중등남", "date": "11/14", "dow": "토", "slot": 13, "court": 2, "time": "12:06~12:21", "grp": "리그", "rd": "5R", "t1": "원일중", "t2": "해솔중", "id": "M064"}, {"div": "중등여", "date": "11/14", "dow": "토", "slot": 13, "court": 3, "time": "12:06~12:21", "grp": "리그", "rd": "7R", "t1": "원곡중", "t2": "부곡중", "id": "M060"}, {"div": "중등남", "date": "11/14", "dow": "토", "slot": 14, "court": 1, "time": "12:24~12:39", "grp": "리그", "rd": "2R", "t1": "중앙중", "t2": "선일중", "id": "M041"}, {"div": "중등남", "date": "11/14", "dow": "토", "slot": 14, "court": 2, "time": "12:24~12:39", "grp": "리그", "rd": "3R", "t1": "선부중", "t2": "부곡중", "id": "M047"}, {"div": "중등여", "date": "11/14", "dow": "토", "slot": 14, "court": 3, "time": "12:24~12:39", "grp": "리그", "rd": "6R", "t1": "이호중", "t2": "본오중", "id": "M052"}, {"div": "중등여", "date": "11/14", "dow": "토", "slot": 14, "court": 4, "time": "12:24~12:39", "grp": "리그", "rd": "9R", "t1": "선일중", "t2": "별망중", "id": "M075"}, {"div": "고등남", "date": "11/14", "dow": "토", "slot": 15, "court": 1, "time": "13:10~13:25", "grp": "리그", "rd": "7R", "t1": "광덕고", "t2": "성안고", "id": "M110"}, {"div": "고등남", "date": "11/14", "dow": "토", "slot": 15, "court": 2, "time": "13:10~13:25", "grp": "리그", "rd": "7R", "t1": "초지고", "t2": "단원고", "id": "M111"}, {"div": "고등여", "date": "11/14", "dow": "토", "slot": 15, "court": 3, "time": "13:10~13:25", "grp": "리그", "rd": "1R", "t1": "양지고", "t2": "선부고", "id": "M086"}, {"div": "고등여", "date": "11/14", "dow": "토", "slot": 15, "court": 4, "time": "13:10~13:25", "grp": "리그", "rd": "4R", "t1": "국비고", "t2": "초지고", "id": "M108"}, {"div": "고등남", "date": "11/14", "dow": "토", "slot": 16, "court": 1, "time": "13:28~13:43", "grp": "리그", "rd": "3R", "t1": "고잔고", "t2": "양지고", "id": "M081"}, {"div": "고등남", "date": "11/14", "dow": "토", "slot": 16, "court": 2, "time": "13:28~13:43", "grp": "리그", "rd": "4R", "t1": "신길고", "t2": "동산고", "id": "M085"}, {"div": "고등여", "date": "11/14", "dow": "토", "slot": 16, "court": 3, "time": "13:28~13:43", "grp": "리그", "rd": "5R", "t1": "동산고", "t2": "원곡고", "id": "M113"}, {"div": "고등남", "date": "11/14", "dow": "토", "slot": 17, "court": 1, "time": "13:46~14:01", "grp": "리그", "rd": "4R", "t1": "광덕고", "t2": "안산공고", "id": "M088"}, {"div": "고등남", "date": "11/14", "dow": "토", "slot": 17, "court": 2, "time": "13:46~14:01", "grp": "리그", "rd": "4R", "t1": "성안고", "t2": "원곡고", "id": "M090"}, {"div": "고등여", "date": "11/14", "dow": "토", "slot": 17, "court": 3, "time": "13:46~14:01", "grp": "리그", "rd": "5R", "t1": "양지고", "t2": "국비고", "id": "M114"}, {"div": "고등남", "date": "11/14", "dow": "토", "slot": 18, "court": 1, "time": "14:04~14:19", "grp": "리그", "rd": "5R", "t1": "동산고", "t2": "초지고", "id": "M094"}, {"div": "고등남", "date": "11/14", "dow": "토", "slot": 18, "court": 2, "time": "14:04~14:19", "grp": "리그", "rd": "5R", "t1": "송호고", "t2": "양지고", "id": "M096"}, {"div": "고등여", "date": "11/14", "dow": "토", "slot": 18, "court": 3, "time": "14:04~14:19", "grp": "리그", "rd": "2R", "t1": "초지고", "t2": "동산고", "id": "M089"}, {"div": "고등여", "date": "11/14", "dow": "토", "slot": 18, "court": 4, "time": "14:04~14:19", "grp": "리그", "rd": "4R", "t1": "원곡고", "t2": "선부고", "id": "M107"}, {"div": "고등남", "date": "11/14", "dow": "토", "slot": 19, "court": 1, "time": "14:22~14:37", "grp": "리그", "rd": "3R", "t1": "단원고", "t2": "성안고", "id": "M084"}, {"div": "고등남", "date": "11/14", "dow": "토", "slot": 19, "court": 2, "time": "14:22~14:37", "grp": "리그", "rd": "7R", "t1": "신길고", "t2": "고잔고", "id": "M112"}, {"div": "고등남", "date": "11/14", "dow": "토", "slot": 20, "court": 1, "time": "14:40~14:55", "grp": "리그", "rd": "3R", "t1": "원곡고", "t2": "광덕고", "id": "M080"}, {"div": "고등여", "date": "11/14", "dow": "토", "slot": 20, "court": 3, "time": "14:40~14:55", "grp": "리그", "rd": "2R", "t1": "양지고", "t2": "원곡고", "id": "M093"}, {"div": "고등남", "date": "11/14", "dow": "토", "slot": 21, "court": 1, "time": "14:58~15:13", "grp": "리그", "rd": "4R", "t1": "초지고", "t2": "송호고", "id": "M087"}, {"div": "고등남", "date": "11/14", "dow": "토", "slot": 21, "court": 2, "time": "14:58~15:13", "grp": "리그", "rd": "7R", "t1": "동산고", "t2": "양지고", "id": "M109"}, {"div": "고등여", "date": "11/14", "dow": "토", "slot": 21, "court": 3, "time": "14:58~15:13", "grp": "리그", "rd": "1R", "t1": "동산고", "t2": "국비고", "id": "M082"}, {"div": "고등여", "date": "11/14", "dow": "토", "slot": 21, "court": 4, "time": "14:58~15:13", "grp": "리그", "rd": "5R", "t1": "선부고", "t2": "초지고", "id": "M117"}, {"div": "고등남", "date": "11/14", "dow": "토", "slot": 22, "court": 1, "time": "15:16~15:31", "grp": "리그", "rd": "4R", "t1": "단원고", "t2": "고잔고", "id": "M091"}, {"div": "고등남", "date": "11/14", "dow": "토", "slot": 22, "court": 2, "time": "15:16~15:31", "grp": "리그", "rd": "5R", "t1": "안산공고", "t2": "성안고", "id": "M097"}, {"div": "고등남", "date": "11/14", "dow": "토", "slot": 23, "court": 1, "time": "15:34~15:49", "grp": "리그", "rd": "5R", "t1": "신길고", "t2": "광덕고", "id": "M095"}, {"div": "고등남", "date": "11/14", "dow": "토", "slot": 23, "court": 2, "time": "15:34~15:49", "grp": "리그", "rd": "7R", "t1": "송호고", "t2": "원곡고", "id": "M115"}, {"div": "고등여", "date": "11/14", "dow": "토", "slot": 23, "court": 3, "time": "15:34~15:49", "grp": "리그", "rd": "1R", "t1": "원곡고", "t2": "초지고", "id": "M083"}, {"div": "고등여", "date": "11/14", "dow": "토", "slot": 23, "court": 4, "time": "15:34~15:49", "grp": "리그", "rd": "4R", "t1": "양지고", "t2": "동산고", "id": "M104"}, {"div": "고등남", "date": "11/14", "dow": "토", "slot": 24, "court": 1, "time": "15:52~16:07", "grp": "리그", "rd": "6R", "t1": "양지고", "t2": "초지고", "id": "M102"}, {"div": "고등남", "date": "11/14", "dow": "토", "slot": 24, "court": 2, "time": "15:52~16:07", "grp": "리그", "rd": "8R", "t1": "성안고", "t2": "동산고", "id": "M116"}, {"div": "고등여", "date": "11/14", "dow": "토", "slot": 24, "court": 3, "time": "15:52~16:07", "grp": "리그", "rd": "2R", "t1": "선부고", "t2": "국비고", "id": "M092"}, {"div": "고등남", "date": "11/14", "dow": "토", "slot": 25, "court": 1, "time": "16:10~16:25", "grp": "리그", "rd": "6R", "t1": "단원고", "t2": "송호고", "id": "M105"}, {"div": "고등남", "date": "11/14", "dow": "토", "slot": 25, "court": 2, "time": "16:10~16:25", "grp": "리그", "rd": "6R", "t1": "고잔고", "t2": "안산공고", "id": "M106"}, {"div": "고등여", "date": "11/14", "dow": "토", "slot": 25, "court": 3, "time": "16:10~16:25", "grp": "리그", "rd": "3R", "t1": "초지고", "t2": "양지고", "id": "M099"}, {"div": "고등남", "date": "11/14", "dow": "토", "slot": 26, "court": 1, "time": "16:28~16:43", "grp": "리그", "rd": "6R", "t1": "광덕고", "t2": "동산고", "id": "M100"}, {"div": "고등남", "date": "11/14", "dow": "토", "slot": 26, "court": 2, "time": "16:28~16:43", "grp": "리그", "rd": "6R", "t1": "성안고", "t2": "신길고", "id": "M103"}, {"div": "고등여", "date": "11/14", "dow": "토", "slot": 26, "court": 3, "time": "16:28~16:43", "grp": "리그", "rd": "3R", "t1": "동산고", "t2": "선부고", "id": "M098"}, {"div": "고등여", "date": "11/14", "dow": "토", "slot": 26, "court": 4, "time": "16:28~16:43", "grp": "리그", "rd": "3R", "t1": "국비고", "t2": "원곡고", "id": "M101"}, {"div": "고등남", "date": "11/21", "dow": "토", "slot": 1, "court": 1, "time": "08:30~08:45", "grp": "리그", "rd": "10R", "t1": "원곡고", "t2": "단원고", "id": "M134"}, {"div": "고등남", "date": "11/21", "dow": "토", "slot": 1, "court": 2, "time": "08:30~08:45", "grp": "리그", "rd": "11R", "t1": "성안고", "t2": "송호고", "id": "M144"}, {"div": "고등여", "date": "11/21", "dow": "토", "slot": 1, "court": 3, "time": "08:30~08:45", "grp": "리그", "rd": "9R", "t1": "동산고", "t2": "양지고", "id": "M143"}, {"div": "고등여", "date": "11/21", "dow": "토", "slot": 1, "court": 4, "time": "08:30~08:45", "grp": "리그", "rd": "9R", "t1": "초지고", "t2": "국비고", "id": "M147"}, {"div": "고등남", "date": "11/21", "dow": "토", "slot": 2, "court": 1, "time": "08:48~09:03", "grp": "리그", "rd": "10R", "t1": "안산공고", "t2": "양지고", "id": "M135"}, {"div": "고등남", "date": "11/21", "dow": "토", "slot": 2, "court": 2, "time": "08:48~09:03", "grp": "리그", "rd": "11R", "t1": "광덕고", "t2": "초지고", "id": "M148"}, {"div": "고등여", "date": "11/21", "dow": "토", "slot": 2, "court": 3, "time": "08:48~09:03", "grp": "리그", "rd": "9R", "t1": "선부고", "t2": "원곡고", "id": "M146"}, {"div": "고등남", "date": "11/21", "dow": "토", "slot": 3, "court": 1, "time": "09:06~09:21", "grp": "리그", "rd": "10R", "t1": "고잔고", "t2": "동산고", "id": "M133"}, {"div": "고등여", "date": "11/21", "dow": "토", "slot": 3, "court": 3, "time": "09:06~09:21", "grp": "리그", "rd": "10R", "t1": "국비고", "t2": "양지고", "id": "M150"}, {"div": "고등남", "date": "11/21", "dow": "토", "slot": 4, "court": 1, "time": "09:24~09:39", "grp": "리그", "rd": "9R", "t1": "신길고", "t2": "송호고", "id": "M132"}, {"div": "고등여", "date": "11/21", "dow": "토", "slot": 4, "court": 3, "time": "09:24~09:39", "grp": "리그", "rd": "6R", "t1": "초지고", "t2": "원곡고", "id": "M121"}, {"div": "고등여", "date": "11/21", "dow": "토", "slot": 4, "court": 4, "time": "09:24~09:39", "grp": "리그", "rd": "8R", "t1": "선부고", "t2": "동산고", "id": "M136"}, {"div": "고등남", "date": "11/21", "dow": "토", "slot": 5, "court": 1, "time": "09:42~09:57", "grp": "리그", "rd": "8R", "t1": "단원고", "t2": "양지고", "id": "M118"}, {"div": "고등남", "date": "11/21", "dow": "토", "slot": 5, "court": 2, "time": "09:42~09:57", "grp": "리그", "rd": "9R", "t1": "초지고", "t2": "안산공고", "id": "M129"}, {"div": "고등남", "date": "11/21", "dow": "토", "slot": 6, "court": 1, "time": "10:00~10:15", "grp": "리그", "rd": "9R", "t1": "성안고", "t2": "고잔고", "id": "M126"}, {"div": "고등남", "date": "11/21", "dow": "토", "slot": 6, "court": 2, "time": "10:00~10:15", "grp": "리그", "rd": "11R", "t1": "동산고", "t2": "원곡고", "id": "M141"}, {"div": "고등여", "date": "11/21", "dow": "토", "slot": 6, "court": 3, "time": "10:00~10:15", "grp": "리그", "rd": "6R", "t1": "국비고", "t2": "동산고", "id": "M120"}, {"div": "고등남", "date": "11/21", "dow": "토", "slot": 7, "court": 1, "time": "10:18~10:33", "grp": "리그", "rd": "10R", "t1": "송호고", "t2": "광덕고", "id": "M138"}, {"div": "고등여", "date": "11/21", "dow": "토", "slot": 7, "court": 3, "time": "10:18~10:33", "grp": "리그", "rd": "7R", "t1": "원곡고", "t2": "양지고", "id": "M131"}, {"div": "고등여", "date": "11/21", "dow": "토", "slot": 7, "court": 4, "time": "10:18~10:33", "grp": "리그", "rd": "10R", "t1": "초지고", "t2": "선부고", "id": "M151"}, {"div": "고등남", "date": "11/21", "dow": "토", "slot": 8, "court": 1, "time": "10:36~10:51", "grp": "리그", "rd": "11R", "t1": "단원고", "t2": "안산공고", "id": "M142"}, {"div": "고등남", "date": "11/21", "dow": "토", "slot": 8, "court": 2, "time": "10:36~10:51", "grp": "리그", "rd": "11R", "t1": "양지고", "t2": "신길고", "id": "M145"}, {"div": "고등남", "date": "11/21", "dow": "토", "slot": 9, "court": 1, "time": "10:54~11:09", "grp": "리그", "rd": "8R", "t1": "원곡고", "t2": "초지고", "id": "M122"}, {"div": "고등여", "date": "11/21", "dow": "토", "slot": 9, "court": 3, "time": "10:54~11:09", "grp": "리그", "rd": "7R", "t1": "동산고", "t2": "초지고", "id": "M127"}, {"div": "고등여", "date": "11/21", "dow": "토", "slot": 9, "court": 4, "time": "10:54~11:09", "grp": "리그", "rd": "8R", "t1": "원곡고", "t2": "국비고", "id": "M140"}, {"div": "고등남", "date": "11/21", "dow": "토", "slot": 10, "court": 1, "time": "11:12~11:27", "grp": "리그", "rd": "8R", "t1": "고잔고", "t2": "광덕고", "id": "M119"}, {"div": "고등여", "date": "11/21", "dow": "토", "slot": 10, "court": 3, "time": "11:12~11:27", "grp": "리그", "rd": "6R", "t1": "선부고", "t2": "양지고", "id": "M124"}, {"div": "고등남", "date": "11/21", "dow": "토", "slot": 11, "court": 1, "time": "11:30~11:45", "grp": "리그", "rd": "8R", "t1": "안산공고", "t2": "송호고", "id": "M123"}, {"div": "고등남", "date": "11/21", "dow": "토", "slot": 11, "court": 2, "time": "11:30~11:45", "grp": "리그", "rd": "9R", "t1": "동산고", "t2": "단원고", "id": "M125"}, {"div": "고등여", "date": "11/21", "dow": "토", "slot": 11, "court": 3, "time": "11:30~11:45", "grp": "리그", "rd": "10R", "t1": "원곡고", "t2": "동산고", "id": "M149"}, {"div": "고등남", "date": "11/21", "dow": "토", "slot": 12, "court": 1, "time": "11:48~12:03", "grp": "리그", "rd": "9R", "t1": "양지고", "t2": "원곡고", "id": "M128"}, {"div": "고등남", "date": "11/21", "dow": "토", "slot": 12, "court": 2, "time": "11:48~12:03", "grp": "리그", "rd": "10R", "t1": "신길고", "t2": "초지고", "id": "M139"}, {"div": "고등여", "date": "11/21", "dow": "토", "slot": 12, "court": 3, "time": "11:48~12:03", "grp": "리그", "rd": "7R", "t1": "국비고", "t2": "선부고", "id": "M130"}, {"div": "고등여", "date": "11/21", "dow": "토", "slot": 12, "court": 4, "time": "11:48~12:03", "grp": "리그", "rd": "8R", "t1": "양지고", "t2": "초지고", "id": "M137"}, {"div": "중등남", "date": "11/21", "dow": "토", "slot": 13, "court": 1, "time": "13:10~13:25", "grp": "리그", "rd": "8R", "t1": "관산중", "t2": "성호중", "id": "M152"}, {"div": "중등남", "date": "11/21", "dow": "토", "slot": 13, "court": 2, "time": "13:10~13:25", "grp": "리그", "rd": "9R", "t1": "원곡중", "t2": "원일중", "id": "M163"}, {"div": "중등여", "date": "11/21", "dow": "토", "slot": 13, "court": 3, "time": "13:10~13:25", "grp": "리그", "rd": "11R", "t1": "선일중", "t2": "원곡중", "id": "M155"}, {"div": "중등여", "date": "11/21", "dow": "토", "slot": 13, "court": 4, "time": "13:10~13:25", "grp": "리그", "rd": "11R", "t1": "부곡중", "t2": "본오중", "id": "M158"}, {"div": "중등남", "date": "11/21", "dow": "토", "slot": 14, "court": 1, "time": "13:28~13:43", "grp": "리그", "rd": "8R", "t1": "이호중", "t2": "본오중", "id": "M153"}, {"div": "중등남", "date": "11/21", "dow": "토", "slot": 14, "court": 2, "time": "13:28~13:43", "grp": "리그", "rd": "11R", "t1": "선부중", "t2": "선일중", "id": "M176"}, {"div": "중등여", "date": "11/21", "dow": "토", "slot": 14, "court": 3, "time": "13:28~13:43", "grp": "리그", "rd": "10R", "t1": "해솔중", "t2": "이호중", "id": "M154"}, {"div": "중등남", "date": "11/21", "dow": "토", "slot": 15, "court": 1, "time": "13:46~14:01", "grp": "리그", "rd": "10R", "t1": "중앙중", "t2": "원곡중", "id": "M173"}, {"div": "중등남", "date": "11/21", "dow": "토", "slot": 15, "court": 2, "time": "13:46~14:01", "grp": "리그", "rd": "11R", "t1": "해솔중", "t2": "부곡중", "id": "M174"}, {"div": "중등여", "date": "11/21", "dow": "토", "slot": 15, "court": 3, "time": "13:46~14:01", "grp": "리그", "rd": "14R", "t1": "별망중", "t2": "본오중", "id": "M178"}, {"div": "중등남", "date": "11/21", "dow": "토", "slot": 16, "court": 1, "time": "14:04~14:19", "grp": "리그", "rd": "10R", "t1": "선일중", "t2": "관산중", "id": "M169"}, {"div": "중등남", "date": "11/21", "dow": "토", "slot": 16, "court": 2, "time": "14:04~14:19", "grp": "리그", "rd": "10R", "t1": "원일중", "t2": "성호중", "id": "M170"}, {"div": "중등여", "date": "11/21", "dow": "토", "slot": 16, "court": 3, "time": "14:04~14:19", "grp": "리그", "rd": "14R", "t1": "부곡중", "t2": "원곡중", "id": "M179"}, {"div": "중등여", "date": "11/21", "dow": "토", "slot": 16, "court": 4, "time": "14:04~14:19", "grp": "리그", "rd": "14R", "t1": "이호중", "t2": "선일중", "id": "M182"}, {"div": "중등남", "date": "11/21", "dow": "토", "slot": 17, "court": 1, "time": "14:22~14:37", "grp": "리그", "rd": "10R", "t1": "이호중", "t2": "선부중", "id": "M167"}, {"div": "중등여", "date": "11/21", "dow": "토", "slot": 17, "court": 3, "time": "14:22~14:37", "grp": "리그", "rd": "11R", "t1": "별망중", "t2": "해솔중", "id": "M161"}, {"div": "중등남", "date": "11/21", "dow": "토", "slot": 18, "court": 1, "time": "14:40~14:55", "grp": "리그", "rd": "9R", "t1": "중앙중", "t2": "부곡중", "id": "M166"}, {"div": "중등남", "date": "11/21", "dow": "토", "slot": 18, "court": 2, "time": "14:40~14:55", "grp": "리그", "rd": "11R", "t1": "관산중", "t2": "원일중", "id": "M177"}, {"div": "중등여", "date": "11/21", "dow": "토", "slot": 18, "court": 3, "time": "14:40~14:55", "grp": "리그", "rd": "12R", "t1": "본오중", "t2": "선일중", "id": "M164"}, {"div": "중등여", "date": "11/21", "dow": "토", "slot": 18, "court": 4, "time": "14:40~14:55", "grp": "리그", "rd": "12R", "t1": "이호중", "t2": "부곡중", "id": "M165"}, {"div": "중등남", "date": "11/21", "dow": "토", "slot": 19, "court": 1, "time": "14:58~15:13", "grp": "리그", "rd": "9R", "t1": "성호중", "t2": "선일중", "id": "M162"}, {"div": "중등남", "date": "11/21", "dow": "토", "slot": 19, "court": 2, "time": "14:58~15:13", "grp": "리그", "rd": "11R", "t1": "본오중", "t2": "원곡중", "id": "M181"}, {"div": "중등여", "date": "11/21", "dow": "토", "slot": 19, "court": 3, "time": "14:58~15:13", "grp": "리그", "rd": "12R", "t1": "해솔중", "t2": "원곡중", "id": "M168"}, {"div": "중등남", "date": "11/21", "dow": "토", "slot": 20, "court": 1, "time": "15:16~15:31", "grp": "리그", "rd": "9R", "t1": "선부중", "t2": "관산중", "id": "M159"}, {"div": "중등남", "date": "11/21", "dow": "토", "slot": 20, "court": 2, "time": "15:16~15:31", "grp": "리그", "rd": "9R", "t1": "해솔중", "t2": "이호중", "id": "M160"}, {"div": "중등여", "date": "11/21", "dow": "토", "slot": 20, "court": 3, "time": "15:16~15:31", "grp": "리그", "rd": "13R", "t1": "부곡중", "t2": "별망중", "id": "M172"}, {"div": "중등남", "date": "11/21", "dow": "토", "slot": 21, "court": 1, "time": "15:34~15:49", "grp": "리그", "rd": "8R", "t1": "원일중", "t2": "부곡중", "id": "M157"}, {"div": "중등남", "date": "11/21", "dow": "토", "slot": 21, "court": 2, "time": "15:34~15:49", "grp": "리그", "rd": "11R", "t1": "성호중", "t2": "중앙중", "id": "M180"}, {"div": "중등여", "date": "11/21", "dow": "토", "slot": 21, "court": 3, "time": "15:34~15:49", "grp": "리그", "rd": "13R", "t1": "본오중", "t2": "이호중", "id": "M171"}, {"div": "중등여", "date": "11/21", "dow": "토", "slot": 21, "court": 4, "time": "15:34~15:49", "grp": "리그", "rd": "13R", "t1": "선일중", "t2": "해솔중", "id": "M175"}], "groups": {"중등남": {"리그": ["선부중", "선일중", "이호중", "관산중", "해솔중", "성호중", "본오중", "원곡중", "중앙중", "부곡중", "원일중"]}, "중등여": {"리그": ["선일중", "이호중", "해솔중", "본오중", "원곡중", "부곡중", "별망중"]}, "고등여": {"리그": ["동산고", "원곡고", "양지고", "선부고", "초지고", "국비고"]}, "고등남": {"리그": ["동산고", "원곡고", "고잔고", "단원고", "성안고", "양지고", "광덕고", "초지고", "신길고", "송호고", "안산공고"]}}}
+/* ═════════════ */
+
+const COURT = ["", "A", "B", "C", "D"];
+const YEAR = 2026;
+let scores = {}, logs = {}, days = {}, date = "", pinned = false, failed = 0;
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const dnum = d => { const [m, x] = d.split("/").map(Number); return m * 100 + x; };
+
+const DATES = [...new Set(DATA.matches.map(m => m.date))].sort((a,b) => dnum(a) - dnum(b));
+const DOW = {}; DATA.matches.forEach(m => DOW[m.date] = m.dow);
+
+/* "17:30~17:45" → 분 단위 [시작, 끝] */
+function span(t){
+  const [a, b] = t.split("~");
+  const mm = s => { const [h, m] = s.split(":").map(Number); return h * 60 + m; };
+  return [mm(a), mm(b)];
+}
+const nowMin = () => { const d = new Date(); return d.getHours() * 60 + d.getMinutes(); };
+const todayStr = () => { const d = new Date(); return (d.getMonth()+1) + "/" + d.getDate(); };
+
+/* 오늘이 경기일이면 오늘, 아니면 다음 경기일 */
+function pickDate(){
+  const t = todayStr();
+  if(DATES.includes(t)) return t;
+  const n = dnum(t);
+  return DATES.find(d => dnum(d) >= n) || DATES[DATES.length - 1];
+}
+
+async function load(){
+  try{
+    const r = await fetch("/api/data", { cache: "no-store" });
+    if(!r.ok) throw 0;
+    const d = await r.json();
+    scores = d.scores || {}; logs = d.logs || {}; days = d.days || {};
+    failed = 0; $("#err").classList.remove("on");
+  }catch(e){
+    failed++;
+    if(failed > 1) $("#err").classList.add("on");
+  }
+  render();
+}
+
+function tick(){
+  const d = new Date();
+  $("#clk").textContent =
+    String(d.getHours()).padStart(2,"0") + ":" + String(d.getMinutes()).padStart(2,"0");
+}
+
+function dates(){
+  $("#dates").innerHTML = DATES.map(d =>
+    `<button data-d="${d}" class="${d===date?'on':''}">${d}(${DOW[d]})</button>`).join("");
+  $("#dates").querySelectorAll("button").forEach(b =>
+    b.onclick = () => { date = b.dataset.d; pinned = true; dates(); render(); });
+}
+
+
+/* ───────── 유튜브 중계 ───────── */
+const liveKey = d => d + "|_live";
+const mm = t => { const [h,m] = String(t).split(":").map(Number); return h*60 + (m||0); };
+
+/* 그 경기가 속한 중계(오전/오후)를 찾아 영상ID와 시작 분을 돌려줍니다 */
+function streamOf(m){
+  const v = days[liveKey(m.date)] || {};
+  const st = span(m.time)[0];
+  const cands = [];
+  if(v.v1) cands.push({ id:v.v1, from: v.t1 ? mm(v.t1) : 0 });
+  if(v.v2) cands.push({ id:v.v2, from: v.t2 ? mm(v.t2) : 0 });
+  if(!cands.length) return null;
+  const ok = cands.filter(c => st >= c.from).sort((a,b) => b.from - a.from);
+  return ok[0] || null;
+}
+function replayUrl(m){
+  const s = streamOf(m); if(!s) return "";
+  const off = Math.max(0, (span(m.time)[0] - s.from) * 60 - 15);  // 15초 여유
+  return `https://youtu.be/${s.id}?t=${off}`;
+}
+/* 지금 시각에 해당하는 중계 */
+function currentStream(){
+  const v = days[liveKey(date)] || {};
+  const n = nowMin();
+  const cands = [];
+  if(v.v1) cands.push({ id:v.v1, from: v.t1 ? mm(v.t1) : 0, label:(v.v2?"오전":"중계") });
+  if(v.v2) cands.push({ id:v.v2, from: v.t2 ? mm(v.t2) : 0, label:"오후" });
+  if(!cands.length) return null;
+  if(date !== todayStr()) return cands[0];
+  const ok = cands.filter(c => n >= c.from - 20).sort((a,b) => b.from - a.from);
+  return ok[0] || cands[0];
+}
+function playerHtml(){
+  const s = currentStream();
+  if(!s) return "";
+  return `<div class="ytwrap"><div class="ythd">📺 <b>실시간 중계</b>
+      <span>${esc(s.label)}</span>
+      <a href="https://youtu.be/${esc(s.id)}" target="_blank" rel="noopener">유튜브에서 크게 보기 ↗</a></div>
+    <div class="yt"><iframe src="https://www.youtube.com/embed/${esc(s.id)}?rel=0"
+      title="실시간 중계" frameborder="0" allowfullscreen
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe></div>
+  </div>`;
+}
+
+/* ───── 득점왕 실시간 순위 ───── */
+let topDiv = "";
+const DIVLABEL = { "중등남":"중등부 남", "중등여":"중등부 여", "고등남":"고등부 남", "고등여":"고등부 여" };
+
+function scorerTable(){
+  const t = {};                                  // "부문|팀|선수" → 골 수
+  DATA.matches.forEach(m => {
+    (logs[m.id]?.goals || []).forEach(g => {
+      const name = String(g.name || "").trim();
+      if(!name) return;                          // 득점자 미상은 순위에서 제외
+      const team = g.t === 1 ? m.t1 : m.t2;
+      const k = m.div + "|" + team + "|" + name.replace(/\s+/g, " ");
+      t[k] = (t[k] || 0) + 1;
+    });
+  });
+  const rows = Object.entries(t).map(([k, n]) => {
+    const [div, team, name] = k.split("|");
+    return { div, team, name, n };
+  });
+  rows.sort((a, b) => b.n - a.n || a.team.localeCompare(b.team, "ko") || a.name.localeCompare(b.name, "ko"));
+  return rows;
+}
+
+function scorerHtml(){
+  const rows = scorerTable();
+  if(!rows.length) return "";
+  const divs = [...new Set(rows.map(r => r.div))];
+  if(!topDiv || !divs.includes(topDiv)) topDiv = divs[0];
+  const mine = rows.filter(r => r.div === topDiv).slice(0, 12);
+
+  // 공동 순위
+  let rank = 0, prev = null, shown = 0;
+  const body = mine.map(r => {
+    shown++;
+    if(r.n !== prev){ rank = shown; prev = r.n; }
+    const medal = rank <= 3 ? `m${rank}` : "";
+    return `<div class="trow">
+      <span class="rk ${medal}">${rank}</span>
+      <span class="nm">${esc(r.name)}</span>
+      <span class="tmn">${esc(r.team)}</span>
+      <span class="gn"><b>${r.n}</b>골</span>
+    </div>`;
+  }).join("");
+
+  return `
+  <section class="top">
+    <div class="tophd">
+      <h3>득점왕 순위</h3>
+      <div class="dtabs">${divs.map(d =>
+        `<button data-sd="${esc(d)}" class="${d === topDiv ? 'on' : ''}">${esc(DIVLABEL[d] || d)}</button>`).join("")}</div>
+    </div>
+    <div class="toptb">${body}</div>
+    <div class="topft">기록지에 입력된 득점만 집계됩니다 · 대회 전체 누적</div>
+  </section>`;
+}
+
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-sd]");
+  if(!b) return;
+  topDiv = b.dataset.sd;
+  $("#scorers").innerHTML = scorerHtml();
+});
+
+function render(){
+  const today = (date === todayStr());
+  const n = nowMin();
+  const all = DATA.matches.filter(m => m.date === date);
+  const courts = [...new Set(all.map(m => m.court))].sort();
+
+  $("#sub").textContent =
+    `${date}(${DOW[date]||""}) · ${all.length}경기` +
+    (today ? " · 12초마다 자동 갱신" : " · 오늘이 아닙니다");
+
+  $("#yt").innerHTML = playerHtml();
+
+  $("#grid").innerHTML = courts.length
+    ? courts.map(c => card(c, all.filter(m => m.court === c), today, n)).join("")
+    : `<div class="empty">이 날은 경기가 없습니다.</div>`;
+
+  $("#scorers").innerHTML = scorerHtml();
+
+  const done = all.filter(m => scores[m.id]).length;
+  const goals = all.reduce((s,m) => s + ((logs[m.id]?.goals || []).length), 0);
+  $("#foot").innerHTML =
+    `<div class="pill">완료<b>${done} / ${all.length}</b></div>
+     <div class="pill">총 득점<b>${goals}</b></div>
+     <div class="pill">구장<b>${courts.length}면</b></div>`;
+}
+
+function card(c, ms, today, n){
+  ms = ms.slice().sort((a,b) => span(a.time)[0] - span(b.time)[0]);
+
+  let cur = null, state = "", next = null;
+  if(today){
+    cur = ms.find(m => { const [s,e] = span(m.time); return n >= s && n <= e; });
+    if(cur) state = "live";
+    if(!cur){
+      next = ms.find(m => span(m.time)[0] > n);
+      const past = ms.filter(m => span(m.time)[1] < n);
+      cur = past.length ? past[past.length - 1] : (next || ms[0]);
+      state = past.length ? "done" : "soon";
+    }
+  }else{
+    cur = ms.find(m => !scores[m.id]) || ms[ms.length - 1];
+    state = scores[cur?.id] ? "done" : "soon";
+  }
+  if(!cur) return "";
+
+  const sv = scores[cur.id] || [0,0];
+  const L = logs[cur.id] || {};
+  const TN = { 1:cur.t1, 2:cur.t2 };
+  const gl = (L.goals || []).map(g =>
+    `<span><b>${esc(g.name || "?")}</b> ${esc(TN[g.t] || "")}${g.min?" "+esc(g.min)+"′":""}</span>`).join("");
+
+  const label = { live:"● 진행 중", done:"종료", soon:"경기 전" }[state];
+  const rp = (state === "done") ? replayUrl(cur) : "";
+  if(!next) next = ms.find(m => span(m.time)[0] > nowMin());
+
+  return `<section class="ct ${state==='live'?'on':''} ${state==='done'?'done':''}">
+    <div class="cth"><em>${COURT[c]}</em><span class="nm">${COURT[c]}구장</span>
+      <span class="st">${label}</span></div>
+    <div class="body">
+      <div class="tm">${esc(cur.time)} · ${esc(cur.div)} ${esc(cur.rd || "")}</div>
+      <div class="row">
+        <span class="tname">${esc(cur.t1)}</span>
+        <span class="sc">${sv[0]}</span><span class="sep">:</span><span class="sc">${sv[1]}</span>
+        <span class="tname">${esc(cur.t2)}</span>
+      </div>
+      ${gl ? `<div class="gl">${gl}</div>` : ""}
+    </div>
+    ${rp ? `<a class="rp" href="${rp}" target="_blank" rel="noopener">▶ 이 경기 다시보기</a>` : ""}
+    ${next && next.id !== cur.id
+      ? `<div class="next">다음 <b>${esc(next.time.split("~")[0])}</b> ${esc(next.t1)} vs ${esc(next.t2)}</div>`
+      : ""}
+  </section>`;
+}
+
+date = pickDate();
+dates(); tick(); load();
+setInterval(tick, 1000);
+setInterval(() => { if(!pinned || date === todayStr()) load(); }, 12000);
+</script>
+</html>
