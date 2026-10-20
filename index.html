@@ -144,6 +144,12 @@ caption{text-align:left;font-size:14px;font-weight:800;padding:0 0 8px}
 th,td{padding:9px 6px;font-size:12.5px;text-align:center;border-bottom:1px solid var(--line)}
 th{background:#E9EFE9;font-weight:800;color:var(--mute);font-size:10.5px}
 tbody tr:last-child td{border-bottom:0}
+table.rl{table-layout:fixed}
+table.rl th:nth-child(1),table.rl td:nth-child(1){width:21%}
+table.rl th:nth-child(2),table.rl td:nth-child(2){width:41%}
+table.rl th:nth-child(3),table.rl td:nth-child(3){width:38%}
+table.rl td{text-align:left;padding:10px 8px;line-height:1.5;word-break:keep-all}
+table.rl td:first-child{text-align:center;font-weight:800;color:var(--ink);word-break:keep-all}
 table.kl{display:block;overflow-x:auto;white-space:nowrap;border-radius:12px}
 table.kl td.rk{font-weight:800;color:var(--turf);padding-left:10px}
 table.kl td.tm{text-align:left;font-weight:800;font-size:13.5px;padding-right:14px}
@@ -341,24 +347,7 @@ footer{text-align:center;font-size:11.5px;color:var(--mute);padding:28px 14px 12
 <li><span class="k">종료 후</span>대기석 정리 · 분리수거 · 인솔교사 동행 귀가</li></ul>
 </div></dialog>
 
-<dialog class="lb" id="lbRule"><div class="lbhd"><h3>경기 규칙</h3><button data-x>✕</button></div>
-<div class="lbbd">
-<p>대한풋살협회 경기 규칙을 따르며, 이 대회에 적용하는 주요 규정은 아래와 같습니다.</p>
-<table><thead><tr><th>구분</th><th>규정</th><th>비고</th></tr></thead><tbody>
-<tr><td>골키퍼<br>클리어런스</td><td>하프라인 이상 패스 불가 (중등부)</td><td>넘으면 상대팀 간접프리킥<br>인플레이 중에는 발로 가능</td></tr>
-<tr><td>킥인</td><td>볼은 터치라인 위에 두고 진행<br>디딤발 위치는 상관없음<br>골키퍼에게 패스 가능</td><td>위반 시 상대팀 킥인<br>터치 없이 들어가면 노골</td></tr>
-<tr><td>킥오프</td><td>우리팀 진행으로 패스 가능</td><td>직접 슈팅 골인 가능</td></tr>
-<tr><td>골키퍼<br>볼 소유</td><td>4초 적용<br>직접 잡은 볼을 발로 차 넣으면 골인</td><td>위반 시 상대팀 간접프리킥</td></tr>
-<tr><td>코너킥</td><td>4초 적용<br>직접 골인 가능</td><td>위반 시 골키퍼 클리어런스로 재개</td></tr>
-<tr><td>종료</td><td>버저비터 노골</td><td></td></tr>
-<tr><td>무승부</td><td>그대로 인정</td><td>승점 1점씩</td></tr></tbody></table>
-<h4>그 밖에</h4>
-<ul><li>경기 개시는 심판의 동전 토스로 공격권을 정합니다.</li>
-<li>경기 시간은 전·후반 각 10분이며 시간은 흘러갑니다.</li>
-<li>한 팀이 3명보다 적으면 경기를 시작할 수 없습니다.</li>
-<li>선수 교체는 무제한이며 교체지역으로만 드나듭니다.</li>
-<li>정강이 보호대를 착용하지 않으면 출전할 수 없습니다.</li></ul>
-</div></dialog>
+<dialog class="lb" id="lbRule"><div class="lbhd"><h3>경기 규칙</h3><button data-x>✕</button></div><div class="lbbd"><p>대한풋살협회 경기 규칙을 따르며, 이 대회에 적용하는 주요 상황별 규정은 아래와 같습니다.</p><table class="rl"><thead><tr><th>구분</th><th>규정</th><th>비고</th></tr></thead><tbody><tr><td>골키퍼 클리어런스<br><em style="font-style:normal;font-size:10.5px;font-weight:600;color:#66786E">(손으로 던지기)</em></td><td>하프 라인 이상 패스 가능함<br>인플레이 중에는 발로 터치 가능</td><td>골키퍼 클리어런스에 의한 득점은 인정하지 않음<br>상대팀 골키퍼 클리어런스로 경기 재개</td></tr><tr><td>킥인</td><td>4초 룰 적용함<br>공은 터치라인 위에 두고 진행함<br>디딤발의 위치는 상관하지 않음<br>골키퍼에게 패스 가능함</td><td>터치라인 위에 공을 정지 후 진행<br>(위반 시 상대팀 킥인)<br>터치 없이 들어간 골은 노골</td></tr><tr><td>킥오프</td><td>자기 팀 진영으로 패스 가능함</td><td>직접 슈팅 골인 가능</td></tr><tr><td>골키퍼 공 소유</td><td>4초 룰 적용함<br>골키퍼가 직접 잡은 공을 발로 차서 넣은 경우 득점을 인정함</td><td>4초룰 위반 시 상대팀 간접프리킥</td></tr><tr><td>백패스</td><td>백패스를 허용하되, 골키퍼는 백패스된 공을 발로만 처리할 수 있음<br>백패스된 공을 골키퍼가 손으로 잡는 경우 간접프리킥을 부여함</td><td>페널티 에어리어 안에서 손으로 잡는 경우 간접프리킥<br>페널티 에어리어 밖에서 손으로 처리하는 경우 핸드볼 반칙(직접프리킥)</td></tr><tr><td>코너킥</td><td>4초 룰 적용함<br>코너킥에서 직접 들어간 골은 인정함</td><td>4초 룰 위반 시 골키퍼 클리어런스로 경기 재개</td></tr><tr><td>종료</td><td>버저비터로 들어간 골은 인정하지 않음</td><td></td></tr><tr><td>퇴장</td><td>신체 폭력 및 카드 누적 시 2분간 퇴장함</td><td>실점 시 같은 팀의 다른 선수를 투입함</td></tr></tbody></table><h4>그 밖에</h4><ul><li>경기 시간은 전·후반 구분 없이 <b>단판 15분</b>이며, 시간은 흘러갑니다.</li><li>경기는 각 팀 5명(골레이로 포함)으로 진행하며, 한 팀이 3명보다 적으면 경기를 시작할 수 없습니다.</li><li>선수 교체는 무제한이며 교체지역으로만 드나듭니다.</li><li>골레이로 교대는 경기 중단 시 주심에게 알린 뒤 할 수 있고, 등번호가 표시된 골레이로 상의를 입어야 합니다.</li><li>무승부는 그대로 인정하며 승점 1점씩 받습니다.</li><li>정강이 보호대를 착용하지 않으면 출전할 수 없습니다.</li></ul></div></dialog>
 
 <dialog class="lb" id="lbManner"><div class="lbhd"><h3>경기 예절과 협조 사항</h3><button data-x>✕</button></div>
 <div class="lbbd">
@@ -420,7 +409,7 @@ footer{text-align:center;font-size:11.5px;color:var(--mute);padding:28px 14px 12
   <text x="310" y="294" text-anchor="middle" font-size="10.5" font-weight="700" fill="#66786E">4구장</text>
   <rect x="26" y="342" width="198" height="38" rx="8" fill="#FFC53D"/>
   <text x="125" y="360" text-anchor="middle" font-size="11.5" font-weight="800" fill="#5A4207">대기 공간 · 농구장</text>
-  <text x="125" y="374" text-anchor="middle" font-size="9" font-weight="700" fill="#7A6212">천막 설치 · 가족 응원석</text>
+  <text x="125" y="374" text-anchor="middle" font-size="9" font-weight="700" fill="#7A6212">천막 설치 · 참가교 대기</text>
   <rect x="236" y="342" width="158" height="38" rx="8" fill="#E2EAE4" stroke="#C9D6CD"/>
   <text x="315" y="360" text-anchor="middle" font-size="11.5" font-weight="800" fill="#0B3A2A">분리수거 구역</text>
   <text x="315" y="374" text-anchor="middle" font-size="9" font-weight="700" fill="#66786E">종이 · 플라스틱 · 일반</text>
@@ -748,14 +737,6 @@ function renderInfo(){
     <li>음료병, 테이프, 반창고, 물통까지 하나도 남기지 않습니다.</li>
     <li>분리수거 구역에서 종이 · 플라스틱 · 일반으로 나눕니다.</li>
     <li>정리 상태는 기록원이 확인하고 페어플레이팀 심사에 반영합니다.</li></ul></div>
-
-  <div class="info"><h3>가족과 함께하는 풋살</h3>
-    <ul><li><span class="k">날짜</span>11월 21일 토요일</li>
-    <li><span class="k">시간</span>경기 종료 후 · 네 구장 동시</li>
-    <li><span class="k">팀 구성</span>학생 3명 + 가족 동반자 2명</li>
-    <li><span class="k">득점</span>학생 2점 · 가족 1점 · 주고받아 넣은 골 3점</li></ul>
-    <p style="margin-top:8px"><b>가족 동반자</b>는 만 19세 이상이면서 아버지·어머니·할아버지·할머니·외할아버지·외할머니·큰아버지·작은아버지·고모·이모·외삼촌 및 그 배우자에 해당하는 사람 중, 보호자가 신청서에 지정한 1인입니다. 구하기 어려운 학생은 인솔교사나 지원단 성인과 팀을 이룹니다.</p>
-    <p>태클과 슬라이딩은 금지하고, 가족 동반자는 하프라인을 넘어 슛할 수 없습니다.</p></div>
 
   <div class="info"><h3>야간 경기 안내</h3>
     <ul><li>중등부는 19:15 이전, 고등부는 19:35 이전에 끝납니다. 인솔교사가 동행해 귀가합니다.</li>
