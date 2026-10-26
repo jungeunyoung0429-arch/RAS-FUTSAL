@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>베스트컷 · 2026 RAS 풋살</title>
+<style>
+:root{
+  --ink:#0F1E17; --paper:#F2F6F0; --card:#fff; --line:#DCE4DA; --mute:#66786E;
+  --turf:#0B3A2A; --grn:#00A651; --grn2:#0BC463; --lamp:#FFC53D; --vio:#8B5CF6;
+  --heart:#E8426B; --r:14px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-size:15px;line-height:1.5;padding-bottom:60px;
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR","Malgun Gothic",sans-serif}
+.wrap{max-width:680px;margin:0 auto;padding:0 14px}
+
+header{background:var(--turf);padding:17px 14px 16px}
+header .in{max-width:680px;margin:0 auto}
+h1{margin:0;font-size:20px;font-weight:800;color:#fff;letter-spacing:-.02em}
+h1 span{display:block;font-size:11.5px;font-weight:700;color:var(--grn2);margin-bottom:5px;letter-spacing:.07em}
+header p{margin:9px 0 0;font-size:13px;color:#A9CEBB;font-weight:600;line-height:1.6}
+
+.tabs{background:var(--turf);padding:0 14px 13px}
+.tabs .in{max-width:680px;margin:0 auto;display:flex;gap:6px}
+.tabs button{flex:1;padding:9px 10px;border:0;border-radius:10px;background:rgba(255,255,255,.15);
+  color:#CBE6D8;font:inherit;font-size:13.5px;font-weight:800;cursor:pointer}
+.tabs button.on{background:#fff;color:var(--turf)}
+
+.card{background:var(--card);border:1.5px solid var(--line);border-radius:var(--r);padding:16px;margin-top:13px}
+.card > h3{margin:0 0 4px;font-size:15.5px;font-weight:900}
+.card > .sub{font-size:12.5px;color:var(--mute);font-weight:600;line-height:1.6;margin-bottom:13px}
+
+.ff{margin-bottom:11px}
+.ff:last-child{margin-bottom:0}
+.ff label{display:block;font-size:13px;font-weight:800;margin-bottom:6px}
+.ff label em{font-style:normal;font-weight:600;color:var(--mute);margin-left:5px;font-size:12px}
+.ff input,.ff select{width:100%;padding:12px 13px;border:1.5px solid var(--line);border-radius:11px;
+  background:var(--paper);font:inherit;font-size:16px;font-weight:600;color:var(--ink);outline:0;
+  -webkit-appearance:none;appearance:none}
+.ff select{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path d='M1 1l5 5 5-5' stroke='%2366786E' stroke-width='2' fill='none' stroke-linecap='round'/></svg>");
+  background-repeat:no-repeat;background-position:right 13px center;padding-right:34px}
+.ff input:focus,.ff select:focus{border-color:var(--grn);background:var(--card)}
+
+.drop{border:2px dashed var(--line);border-radius:13px;background:var(--paper);padding:26px 16px;
+  text-align:center;cursor:pointer}
+.drop b{display:block;font-size:15px;font-weight:900;color:var(--turf);margin-bottom:4px}
+.drop span{font-size:12px;color:var(--mute);font-weight:600;line-height:1.6}
+.drop.has{border-style:solid;border-color:var(--grn);padding:10px}
+.drop img{max-width:100%;border-radius:10px;display:block;margin:0 auto}
+.drop .again{margin-top:9px;font-size:12px;font-weight:800;color:var(--mute)}
+#file{display:none}
+
+.send{width:100%;margin-top:13px;padding:16px;border:0;border-radius:13px;background:var(--grn);color:#fff;
+  font:inherit;font-size:16px;font-weight:900;cursor:pointer}
+.send:disabled{background:#B8C9BF;cursor:default}
+.hintbar{margin-top:9px;font-size:12.5px;font-weight:700;color:#C0392B;text-align:center;min-height:17px}
+.hintbar.ok{color:var(--grn)}
+
+.g{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:13px}
+.ph{background:var(--card);border:1.5px solid var(--line);border-radius:13px;overflow:hidden;position:relative}
+.ph.best{border-color:var(--lamp);border-width:2.5px}
+.ph .im{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:#E7ECE8;cursor:pointer}
+.ph .bd{padding:9px 10px 10px}
+.ph .tt{font-size:13px;font-weight:900;letter-spacing:-.01em}
+.ph .tt i{font-style:normal;font-size:10.5px;font-weight:700;color:var(--mute);margin-left:4px}
+.ph .cp{margin:3px 0 0;font-size:11.5px;color:var(--mute);font-weight:600;line-height:1.5;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ph .hb{margin-top:8px;width:100%;padding:8px;border:1.5px solid var(--line);border-radius:9px;
+  background:var(--paper);font:inherit;font-size:12.5px;font-weight:800;color:var(--mute);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:5px}
+.ph .hb.on{border-color:var(--heart);background:#FFF0F4;color:var(--heart)}
+.ph .crown{position:absolute;top:8px;left:8px;background:var(--lamp);color:#4A3200;
+  font-size:10.5px;font-weight:900;padding:4px 8px;border-radius:7px}
+
+.lb{position:fixed;inset:0;z-index:90;background:rgba(7,20,15,.93);display:none;
+  align-items:center;justify-content:center;padding:18px}
+.lb.on{display:flex}
+.lb img{max-width:100%;max-height:78vh;border-radius:12px;display:block}
+.lb .cap{position:absolute;left:0;right:0;bottom:22px;text-align:center;color:#DCF0E5;
+  font-size:13px;font-weight:700;padding:0 20px;line-height:1.6}
+.lb .x{position:absolute;top:16px;right:16px;width:38px;height:38px;border:0;border-radius:50%;
+  background:rgba(255,255,255,.18);color:#fff;font-size:19px;cursor:pointer;line-height:1}
+
+.emptybox{background:var(--card);border:1.5px dashed var(--line);border-radius:var(--r);
+  padding:34px 20px;margin-top:13px;text-align:center;font-size:13.5px;font-weight:700;
+  color:var(--mute);line-height:1.8}
+.emptybox b{color:var(--ink)}
+.priv{margin:13px 0 0;font-size:11.5px;color:var(--mute);font-weight:600;line-height:1.7;
+  background:#EBF1EC;border-radius:11px;padding:12px 14px}
+footer{text-align:center;font-size:11.5px;color:#9BAAA1;font-weight:700;padding:26px 0 10px}
+</style>
+
+<header><div class="in">
+  <h1><span>2026 안산 RAS FESTA · 학생주도 풋살</span>우리 팀 베스트컷</h1>
+  <p>경기 중 찍은 사진을 올려 주세요. 선생님 확인을 거쳐 공개되고,
+    가장 많은 하트를 받은 사진은 베스트컷으로 시상합니다.</p>
+</div></header>
+
+<div class="tabs"><div class="in">
+  <button data-t="up">사진 올리기</button>
+  <button data-t="gal">베스트컷 갤러리</button>
+</div></div>
+
+<div class="wrap" id="app"></div>
+<div class="lb" id="lb"><button class="x" id="lbx">✕</button><img id="lbi" alt=""><div class="cap" id="lbc"></div></div>
+<footer>안산교육지원청 · 안산학교체육지원단</footer>
+
+<script>
+const SCHOOLS = {"고잔고":["고등남"],"관산중":["중등남"],"광덕고":["고등남"],"국비고":["고등여"],"단원고":["고등남"],"동산고":["고등남","고등여"],"별망중":["중등여"],"본오중":["중등남","중등여"],"부곡중":["중등남","중등여"],"선부고":["고등여"],"선부중":["중등남"],"선일중":["중등남","중등여"],"성안고":["고등남"],"성호중":["중등남"],"송호고":["고등남"],"신길고":["고등남"],"안산공고":["고등남"],"양지고":["고등남","고등여"],"원곡고":["고등남","고등여"],"원곡중":["중등남","중등여"],"원일중":["중등남"],"이호중":["중등남","중등여"],"중앙중":["중등남"],"초지고":["고등남","고등여"],"해솔중":["중등남","중등여"]};
+const DIVNAME = { 중등남:"중등부 남자", 중등여:"중등부 여자", 고등남:"고등부 남자", 고등여:"고등부 여자" };
+const DIVSHORT = { 중등남:"중등남", 중등여:"중등여", 고등남:"고등남", 고등여:"고등여" };
+
+const MAXEDGE = 1440;     // 긴 쪽 기준 픽셀
+const TARGET  = 480_000;  // 목표 용량 (바이트)
+const VOTEKEY = "ras_photo_votes";
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g,
+  c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+
+const votes = {
+  all(){ try{ return JSON.parse(localStorage.getItem(VOTEKEY) || "{}"); }catch(e){ return {}; } },
+  has(id){ return !!this.all()[id]; },
+  add(id){ try{ const v = this.all(); v[id] = 1; localStorage.setItem(VOTEKEY, JSON.stringify(v)); }catch(e){} },
+  del(id){ try{ const v = this.all(); delete v[id]; localStorage.setItem(VOTEKEY, JSON.stringify(v)); }catch(e){} }
+};
+
+let tab = "up", refs = {}, loaded = false;
+let pick = null;                              // { dataUrl, type, bytes }
+const F = { school:"", div:"", by:"", cap:"" };
+
+/* ───────── 사진 줄이기 ───────── */
+function shrink(file){
+  return new Promise((ok, no) => {
+    const fr = new FileReader();
+    fr.onerror = () => no(new Error("read"));
+    fr.onload = () => {
+      const img = new Image();
+      img.onerror = () => no(new Error("decode"));
+      img.onload = () => {
+        const sc = Math.min(1, MAXEDGE / Math.max(img.width, img.height));
+        const w = Math.round(img.width * sc), h = Math.round(img.height * sc);
+        const cv = document.createElement("canvas");
+        cv.width = w; cv.height = h;
+        cv.getContext("2d").drawImage(img, 0, 0, w, h);
+        let q = 0.82, url = cv.toDataURL("image/jpeg", q);
+        while(url.length * 0.75 > TARGET && q > 0.4){
+          q -= 0.1; url = cv.toDataURL("image/jpeg", q);
+        }
+        ok({ dataUrl:url, type:"image/jpeg", bytes: Math.round(url.length * 0.75) });
+      };
+      img.src = fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+
+/* ───────── 데이터 ───────── */
+async function load(){
+  try{
+    const r = await fetch("/api/data?cb=" + Date.now());
+    const d = await r.json();
+    refs = d.refs || {};
+  }catch(e){ refs = {}; }
+  loaded = true;
+}
+const photos = () => Object.entries(refs)
+  .filter(([,v]) => v && v.kind === "photo")
+  .map(([id,v]) => ({ id, ...v }));
+const voteCount = id => Object.values(refs)
+  .filter(v => v && v.kind === "vote" && v.photo === id).length;
+
+/* ───────── 화면 ───────── */
+function render(){
+  document.querySelectorAll(".tabs button").forEach(b => b.classList.toggle("on", b.dataset.t === tab));
+  (tab === "up" ? renderUp : renderGal)();
+}
+
+function divOpts(){
+  const ds = SCHOOLS[F.school] || [];
+  if(!ds.includes(F.div)) F.div = ds.length === 1 ? ds[0] : "";
+  return ds;
+}
+
+function renderUp(){
+  const ds = divOpts();
+  $("#app").innerHTML = `
+  <div class="card">
+    <h3>어떤 사진인가요?</h3>
+    <div class="sub">경기 장면, 우리 팀 단체 사진, 응원하는 모습 모두 좋습니다.
+      한 번에 한 장씩 올리고, 여러 장이면 다시 올리시면 됩니다.</div>
+    <div class="ff">
+      <label>학교</label>
+      <select id="fSchool"><option value="">학교를 고르세요</option>
+        ${Object.keys(SCHOOLS).map(s =>
+          `<option value="${esc(s)}"${s===F.school?" selected":""}>${esc(s)}</option>`).join("")}
+      </select>
+    </div>
+    ${ds.length > 1 ? `<div class="ff"><label>부문</label>
+      <select id="fDiv"><option value="">부문을 고르세요</option>
+        ${ds.map(d => `<option value="${esc(d)}"${d===F.div?" selected":""}>${esc(DIVNAME[d])}</option>`).join("")}
+      </select></div>`
+      : (ds.length === 1 ? `<div class="ff"><label>부문</label>
+        <input value="${esc(DIVNAME[ds[0]])}" disabled></div>` : "")}
+    <div class="ff">
+      <label>올린 사람<em>이름</em></label>
+      <input id="fBy" value="${esc(F.by)}" placeholder="이름" autocomplete="off">
+    </div>
+    <div class="ff">
+      <label>한 줄 설명<em>선택</em></label>
+      <input id="fCap" value="${esc(F.cap)}" placeholder="예) 결승골 넣고 다같이 뛰어간 순간" maxlength="60">
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>사진 고르기</h3>
+    <div class="sub">올릴 때 자동으로 용량을 줄입니다. 원본 그대로 두셔도 됩니다.</div>
+    <input type="file" id="file" accept="image/jpeg,image/png,image/webp,image/*">
+    <div class="drop ${pick ? "has" : ""}" id="drop">
+      ${pick
+        ? `<img src="${pick.dataUrl}" alt="고른 사진"><div class="again">다시 고르려면 누르세요 · ${Math.round(pick.bytes/1024)}KB</div>`
+        : `<b>사진 고르기</b><span>눌러서 앨범에서 고르거나<br>바로 촬영할 수 있습니다</span>`}
+    </div>
+    <button class="send" id="send">올리기</button>
+    <div class="hintbar" id="hint"></div>
+  </div>
+
+  <p class="priv">올린 사진은 바로 공개되지 않습니다. 담당 선생님이 확인한 뒤 갤러리에 올라갑니다.
+    사진은 이 대회 기록과 결과 보고에만 쓰고, 참가 학생 초상권 동의 범위 안에서만 공개합니다.
+    내리고 싶은 사진이 있으면 담당 선생님께 말씀해 주세요.</p>`;
+
+  const sc = $("#fSchool");
+  sc.onchange = () => { F.school = sc.value; F.div = ""; render(); };
+  const dv = $("#fDiv"); if(dv) dv.onchange = () => { F.div = dv.value; };
+  $("#fBy").oninput  = e => { F.by  = e.target.value; };
+  $("#fCap").oninput = e => { F.cap = e.target.value; };
+
+  $("#drop").onclick = () => $("#file").click();
+  $("#file").onchange = async e => {
+    const f = e.target.files && e.target.files[0];
+    if(!f) return;
+    $("#hint").className = "hintbar"; $("#hint").textContent = "사진을 줄이는 중…";
+    try{
+      pick = await shrink(f);
+      $("#hint").textContent = "";
+      render();
+    }catch(err){
+      pick = null;
+      $("#hint").textContent = "이 사진은 열 수 없습니다. 다른 사진으로 해 주세요.";
+    }
+    e.target.value = "";
+  };
+  $("#send").onclick = upload;
+}
+
+async function upload(){
+  const hint = $("#hint"), btn = $("#send");
+  hint.className = "hintbar";
+  const ds = SCHOOLS[F.school] || [];
+  if(!F.school)              return hint.textContent = "학교를 골라 주세요.";
+  if(ds.length > 1 && !F.div) return hint.textContent = "부문을 골라 주세요.";
+  if(!F.by.trim())           return hint.textContent = "올린 사람 이름을 적어 주세요.";
+  if(!pick)                  return hint.textContent = "사진을 골라 주세요.";
+  hint.textContent = "";
+  btn.disabled = true; btn.textContent = "올리는 중…";
+
+  const div = F.div || ds[0] || "";
+  try{
+    const r1 = await fetch("/api/upload", { method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ data: pick.dataUrl, type: pick.type, school: F.school }) });
+    const j1 = await r1.json();
+    if(!j1.ok) throw new Error(j1.msg || "upload");
+
+    const r2 = await fetch("/api/data", { method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ type:"ref", request:true,
+        id: "P" + Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+        value: { kind:"photo", url: j1.url, school: F.school, div,
+                 by: F.by.trim(), cap: F.cap.trim(), status:"대기" } }) });
+    const j2 = await r2.json();
+    if(!j2.ok) throw new Error(j2.msg || "save");
+
+    pick = null; F.cap = "";
+    btn.disabled = false;
+    render();
+    const h = $("#hint");
+    h.className = "hintbar ok";
+    h.textContent = "올렸습니다. 선생님 확인 뒤 갤러리에 올라갑니다.";
+    window.scrollTo({ top:0, behavior:"smooth" });
+  }catch(e){
+    btn.disabled = false; btn.textContent = "올리기";
+    hint.textContent = "올리지 못했습니다. 잠시 뒤 다시 눌러 주세요.";
+  }
+}
+
+function renderGal(){
+  if(!loaded){ $("#app").innerHTML = `<div class="emptybox">불러오는 중…</div>`; return; }
+  const open = photos().filter(p => p.status === "공개" || p.status === "베스트");
+  if(!open.length){
+    $("#app").innerHTML = `<div class="emptybox"><b>아직 공개된 사진이 없습니다.</b><br>
+      사진을 올리면 선생님 확인을 거쳐 이곳에 올라옵니다.<br>
+      우리 팀 사진을 가장 먼저 올려 보세요.</div>`;
+    return;
+  }
+  const rows = open.map(p => ({ ...p, n: voteCount(p.id) }))
+    .sort((a,b) => (b.status === "베스트") - (a.status === "베스트")
+                || b.n - a.n
+                || String(b.at||"").localeCompare(String(a.at||"")));
+
+  $("#app").innerHTML = `
+    <p class="priv" style="margin-top:13px">마음에 드는 사진에 하트를 눌러 주세요.
+      한 사진에 한 번만 누를 수 있고, 하트가 가장 많은 사진이 베스트컷 후보가 됩니다.</p>
+    <div class="g">${rows.map(p => `
+      <div class="ph ${p.status === "베스트" ? "best" : ""}">
+        ${p.status === "베스트" ? `<div class="crown">베스트컷</div>` : ""}
+        <img class="im" src="${esc(p.url)}" alt="${esc(p.school)} 사진"
+             loading="lazy" data-full="${esc(p.url)}" data-cap="${esc(p.cap || "")}">
+        <div class="bd">
+          <div class="tt">${esc(p.school)}<i>${esc(DIVSHORT[p.div] || p.div || "")}</i></div>
+          ${p.cap ? `<p class="cp">${esc(p.cap)}</p>` : ""}
+          <button class="hb ${votes.has(p.id) ? "on" : ""}" data-v="${esc(p.id)}">
+            <span>${votes.has(p.id) ? "♥" : "♡"}</span><span>${p.n}</span></button>
+        </div>
+      </div>`).join("")}</div>`;
+
+  document.querySelectorAll(".im").forEach(im => im.onclick = () => {
+    $("#lbi").src = im.dataset.full;
+    $("#lbc").textContent = im.dataset.cap || "";
+    $("#lb").classList.add("on");
+  });
+  document.querySelectorAll(".hb").forEach(b => b.onclick = () => heart(b));
+}
+
+async function heart(btn){
+  const id = btn.dataset.v;
+  if(votes.has(id)) return;           /* 한 번만 */
+  votes.add(id);
+  btn.classList.add("on");
+  btn.children[0].textContent = "♥";
+  btn.children[1].textContent = String(+btn.children[1].textContent + 1);
+  const vid = "V" + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+  try{
+    const r = await fetch("/api/data", { method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ type:"ref", request:true, id:vid,
+                             value:{ kind:"vote", photo:id } }) });
+    const j = await r.json();
+    if(!j.ok) throw new Error("fail");
+    refs[vid] = { kind:"vote", photo:id };
+  }catch(e){
+    votes.del(id);
+    btn.classList.remove("on");
+    btn.children[0].textContent = "♡";
+    btn.children[1].textContent = String(Math.max(0, +btn.children[1].textContent - 1));
+  }
+}
+
+$("#lbx").onclick = () => $("#lb").classList.remove("on");
+$("#lb").onclick = e => { if(e.target.id === "lb") $("#lb").classList.remove("on"); };
+document.addEventListener("keydown", e => {
+  if(e.key === "Escape") $("#lb").classList.remove("on");
+});
+document.querySelectorAll(".tabs button").forEach(b =>
+  b.onclick = async () => {
+    tab = b.dataset.t;
+    if(tab === "gal"){ render(); await load(); }
+    render();
+  });
+
+if(location.hash === "#gal") tab = "gal";
+render();
+load().then(render);
+</script>
+</html>
