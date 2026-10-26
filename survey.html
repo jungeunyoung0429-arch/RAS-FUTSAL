@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>만족도 설문 · 2026 RAS 풋살</title>
+<style>
+:root{
+  --ink:#0F1E17; --paper:#F2F6F0; --card:#fff; --line:#DCE4DA; --mute:#66786E;
+  --turf:#0B3A2A; --grn:#00A651; --grn2:#0BC463; --lamp:#FFC53D; --sky:#2F7FE0;
+  --vio:#8B5CF6; --r:14px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-size:15px;line-height:1.5;padding-bottom:60px;
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR","Malgun Gothic",sans-serif}
+.wrap{max-width:680px;margin:0 auto;padding:0 14px}
+
+header{background:var(--turf);padding:17px 14px 16px}
+header .in{max-width:680px;margin:0 auto}
+h1{margin:0;font-size:20px;font-weight:800;color:#fff;letter-spacing:-.02em}
+h1 span{display:block;font-size:11.5px;font-weight:700;color:var(--grn2);margin-bottom:5px;letter-spacing:.07em}
+header p{margin:9px 0 0;font-size:13px;color:#A9CEBB;font-weight:600;line-height:1.6}
+
+.card{background:var(--card);border:1.5px solid var(--line);border-radius:var(--r);padding:16px;margin-top:13px}
+.card > h3{margin:0 0 4px;font-size:15.5px;font-weight:900;letter-spacing:-.01em}
+.card > .sub{font-size:12.5px;color:var(--mute);font-weight:600;line-height:1.6;margin-bottom:13px}
+
+.who{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.who button{padding:17px 10px;border:2px solid var(--line);border-radius:13px;background:var(--card);
+  font:inherit;font-size:15.5px;font-weight:800;color:var(--ink);cursor:pointer;line-height:1.35}
+.who button em{display:block;font-style:normal;font-size:11.5px;font-weight:600;color:var(--mute);margin-top:3px}
+.who button.on{border-color:var(--grn);background:#F0FAF4;color:var(--turf)}
+
+.ff{margin-bottom:11px}
+.ff:last-child{margin-bottom:0}
+.ff label{display:block;font-size:13px;font-weight:800;margin-bottom:6px}
+.ff label em{font-style:normal;font-weight:600;color:var(--mute);margin-left:5px;font-size:12px}
+.ff input,.ff select,.ff textarea{width:100%;padding:12px 13px;border:1.5px solid var(--line);border-radius:11px;
+  background:var(--paper);font:inherit;font-size:16px;font-weight:600;color:var(--ink);outline:0;
+  -webkit-appearance:none;appearance:none}
+.ff select{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path d='M1 1l5 5 5-5' stroke='%2366786E' stroke-width='2' fill='none' stroke-linecap='round'/></svg>");
+  background-repeat:no-repeat;background-position:right 13px center;padding-right:34px}
+.ff textarea{min-height:84px;resize:vertical;line-height:1.6;font-size:15px}
+.ff input:focus,.ff select:focus,.ff textarea:focus{border-color:var(--grn);background:var(--card)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{padding:9px 13px;border:1.5px solid var(--line);border-radius:999px;background:var(--paper);
+  font:inherit;font-size:13.5px;font-weight:700;color:var(--mute);cursor:pointer}
+.chips button.on{border-color:var(--grn);background:var(--grn);color:#fff}
+
+.q{padding:14px 0;border-top:1px solid var(--line)}
+.q:first-child{border-top:0;padding-top:4px}
+.q .qt{font-size:14.5px;font-weight:700;line-height:1.5;margin-bottom:10px}
+.q .qt b{color:var(--grn);font-weight:900;margin-right:6px}
+.scale{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.scale button{padding:11px 2px;border:1.5px solid var(--line);border-radius:10px;background:var(--paper);
+  font:inherit;font-size:17px;font-weight:900;color:var(--mute);cursor:pointer;line-height:1}
+.scale button.on{border-color:var(--grn);background:var(--grn);color:#fff}
+.ends{display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:var(--mute);font-weight:700}
+
+.send{width:100%;margin-top:14px;padding:16px;border:0;border-radius:13px;background:var(--grn);color:#fff;
+  font:inherit;font-size:16px;font-weight:900;cursor:pointer}
+.send:disabled{background:#B8C9BF;cursor:default}
+.hintbar{margin-top:9px;font-size:12.5px;font-weight:700;color:#C0392B;text-align:center;min-height:17px}
+
+.done{background:var(--card);border:2px solid var(--grn);border-radius:var(--r);padding:30px 20px;margin-top:13px;text-align:center}
+.done b{display:block;font-size:19px;font-weight:900;color:var(--turf);margin-bottom:9px}
+.done span{display:block;font-size:13.5px;color:var(--mute);font-weight:600;line-height:1.7}
+.done button{margin-top:16px;padding:11px 20px;border:1.5px solid var(--line);border-radius:11px;
+  background:var(--paper);font:inherit;font-size:13px;font-weight:800;color:var(--mute);cursor:pointer}
+
+.priv{margin:13px 0 0;font-size:11.5px;color:var(--mute);font-weight:600;line-height:1.7;
+  background:#EBF1EC;border-radius:11px;padding:12px 14px}
+footer{text-align:center;font-size:11.5px;color:#9BAAA1;font-weight:700;padding:26px 0 10px}
+</style>
+
+<header><div class="in">
+  <h1><span>2026 안산 RAS FESTA · 학생주도 풋살</span>만족도 설문</h1>
+  <p>2~3분이면 끝납니다. 적어 주신 내용은 내년 대회 운영에 그대로 반영됩니다.</p>
+</div></header>
+
+<div class="wrap" id="app"></div>
+<footer>안산교육지원청 · 안산학교체육지원단</footer>
+
+<script>
+const SCHOOLS = {"고잔고":["고등남"],"관산중":["중등남"],"광덕고":["고등남"],"국비고":["고등여"],"단원고":["고등남"],"동산고":["고등남","고등여"],"별망중":["중등여"],"본오중":["중등남","중등여"],"부곡중":["중등남","중등여"],"선부고":["고등여"],"선부중":["중등남"],"선일중":["중등남","중등여"],"성안고":["고등남"],"성호중":["중등남"],"송호고":["고등남"],"신길고":["고등남"],"안산공고":["고등남"],"양지고":["고등남","고등여"],"원곡고":["고등남","고등여"],"원곡중":["중등남","중등여"],"원일중":["중등남"],"이호중":["중등남","중등여"],"중앙중":["중등남"],"초지고":["고등남","고등여"],"해솔중":["중등남","중등여"]};
+const DIVNAME = { 중등남:"중등부 남자", 중등여:"중등부 여자", 고등남:"고등부 남자", 고등여:"고등부 여자" };
+const ROLES = ["선수","학생심판","기록원·계시원","볼리트리버","중계·촬영","응원·관람"];
+
+/* 5점 척도 문항 — 코드는 집계에 쓰이므로 바꾸지 마세요 */
+const QS = {
+  student: [
+    ["s1","이번 풋살대회에 전반적으로 만족한다"],
+    ["s2","경기 진행(시간·순서)이 매끄러웠다"],
+    ["s3","학생이 직접 운영하는 방식이 좋았다"],
+    ["s4","심판의 판정을 믿을 수 있었다"],
+    ["s5","다치지 않고 안전하게 참여했다"],
+    ["s6","상대 팀을 존중하는 분위기였다"],
+    ["s7","내년에도 참가하고 싶다"]
+  ],
+  teacher: [
+    ["s1","대회 운영 전반에 만족한다"],
+    ["s2","사전 안내와 소통이 충분했다"],
+    ["s3","일정과 경기 시간 편성이 적절했다"],
+    ["s4","학생주도 운영 방식이 교육적으로 의미 있었다"],
+    ["s5","안전관리가 적절했다"],
+    ["s6","우리 학교 학생들에게 긍정적인 변화가 있었다"],
+    ["s7","내년에도 참가할 의향이 있다"]
+  ]
+};
+const TXT = {
+  student: [["t1","가장 기억에 남는 순간","선택"],["t2","더 좋아지려면 무엇이 바뀌면 좋을까요","선택"]],
+  teacher: [["t1","운영하며 어려웠던 점","선택"],["t2","개선 제안","선택"]]
+};
+const ENDS = {
+  student: ["전혀 아니다","매우 그렇다"],
+  teacher: ["전혀 아니다","매우 그렇다"]
+};
+const DONEKEY = "ras_survey_done";
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g,
+  c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+
+const store = {
+  get(){ try{ return localStorage.getItem(DONEKEY); }catch(e){ return null; } },
+  set(v){ try{ localStorage.setItem(DONEKEY, v); }catch(e){} },
+  clear(){ try{ localStorage.removeItem(DONEKEY); }catch(e){} }
+};
+
+let who = null, sent = false;
+const F = { school:"", div:"", name:"", role:"", a:{}, t1:"", t2:"" };
+
+function divOpts(){
+  const ds = SCHOOLS[F.school] || [];
+  if(ds.length === 1 && F.div !== ds[0]) F.div = ds[0];
+  if(!ds.includes(F.div)) F.div = ds.length === 1 ? ds[0] : "";
+  return ds;
+}
+
+function render(){
+  if(sent) return renderDone();
+  if(store.get() && !sent) return renderAlready();
+
+  const list = who ? QS[who] : [];
+  const ds = who ? divOpts() : [];
+
+  $("#app").innerHTML = `
+  <div class="card">
+    <h3>어떤 분이신가요?</h3>
+    <div class="sub">고르면 나머지 질문이 나옵니다.</div>
+    <div class="who">
+      <button data-who="student" class="${who==="student"?"on":""}">학생<em>선수 · 심판 · 기록원 · 응원</em></button>
+      <button data-who="teacher" class="${who==="teacher"?"on":""}">지도교사<em>학교 인솔 선생님</em></button>
+    </div>
+  </div>
+
+  ${!who ? "" : `
+  <div class="card">
+    <h3>기본 정보</h3>
+    <div class="sub">이름은 중복 제출을 거르는 용도로만 쓰고, 집계는 학교 단위로 봅니다.</div>
+    <div class="ff">
+      <label>학교</label>
+      <select id="fSchool">
+        <option value="">학교를 고르세요</option>
+        ${Object.keys(SCHOOLS).map(s =>
+          `<option value="${esc(s)}"${s===F.school?" selected":""}>${esc(s)}</option>`).join("")}
+      </select>
+    </div>
+    ${ds.length > 1 ? `
+    <div class="ff">
+      <label>참가 부문</label>
+      <select id="fDiv">
+        <option value="">부문을 고르세요</option>
+        ${ds.map(d => `<option value="${esc(d)}"${d===F.div?" selected":""}>${esc(DIVNAME[d])}</option>`).join("")}
+      </select>
+    </div>` : (ds.length === 1 ? `
+    <div class="ff"><label>참가 부문</label>
+      <input value="${esc(DIVNAME[ds[0]])}" disabled></div>` : "")}
+    <div class="ff">
+      <label>이름</label>
+      <input id="fName" value="${esc(F.name)}" placeholder="${who==="teacher"?"성함":"이름"}" autocomplete="off">
+    </div>
+    ${who === "student" ? `
+    <div class="ff">
+      <label>이번 대회에서 맡은 역할<em>가장 많이 한 것 하나</em></label>
+      <div class="chips" id="fRole">
+        ${ROLES.map(r => `<button data-role="${esc(r)}" class="${r===F.role?"on":""}">${esc(r)}</button>`).join("")}
+      </div>
+    </div>` : ""}
+  </div>
+
+  <div class="card">
+    <h3>얼마나 그렇다고 느끼셨나요?</h3>
+    <div class="sub">1은 전혀 아니다, 5는 매우 그렇다입니다. 일곱 문항 모두 골라 주세요.</div>
+    ${list.map(([k, t], i) => `
+      <div class="q">
+        <div class="qt"><b>${i+1}</b>${esc(t)}</div>
+        <div class="scale" data-q="${k}">
+          ${[1,2,3,4,5].map(n =>
+            `<button data-v="${n}" class="${F.a[k]===n?"on":""}">${n}</button>`).join("")}
+        </div>
+        <div class="ends"><span>${esc(ENDS[who][0])}</span><span>${esc(ENDS[who][1])}</span></div>
+      </div>`).join("")}
+  </div>
+
+  <div class="card">
+    <h3>자유롭게 적어 주세요</h3>
+    <div class="sub">안 적으셔도 제출됩니다. 한 줄이어도 큰 도움이 됩니다.</div>
+    ${TXT[who].map(([k, t, h]) => `
+      <div class="ff">
+        <label>${esc(t)}<em>${esc(h)}</em></label>
+        <textarea id="x_${k}">${esc(F[k])}</textarea>
+      </div>`).join("")}
+  </div>
+
+  <button class="send" id="send">제출하기</button>
+  <div class="hintbar" id="hint"></div>
+  <p class="priv">모아진 답변은 안산학교체육지원단이 대회 결과 보고와 내년 운영 계획에만 씁니다.
+    이름은 공개되지 않고, 결과는 학교·부문 단위 통계로만 정리합니다.</p>
+  `}`;
+
+  bind();
+}
+
+function bind(){
+  document.querySelectorAll("[data-who]").forEach(b =>
+    b.onclick = () => { who = b.dataset.who; F.role = ""; render(); });
+  if(!who) return;
+
+  const sc = $("#fSchool");
+  if(sc) sc.onchange = () => { F.school = sc.value; F.div = ""; render(); };
+  const dv = $("#fDiv");
+  if(dv) dv.onchange = () => { F.div = dv.value; };
+  const nm = $("#fName");
+  if(nm) nm.oninput = () => { F.name = nm.value; };
+
+  document.querySelectorAll("#fRole button").forEach(b =>
+    b.onclick = () => { F.role = F.role === b.dataset.role ? "" : b.dataset.role; render(); });
+
+  document.querySelectorAll(".scale").forEach(box => {
+    const k = box.dataset.q;
+    box.querySelectorAll("button").forEach(b => b.onclick = () => {
+      F.a[k] = +b.dataset.v;
+      box.querySelectorAll("button").forEach(x => x.classList.toggle("on", +x.dataset.v === F.a[k]));
+    });
+  });
+
+  TXT[who].forEach(([k]) => {
+    const el = $("#x_" + k);
+    if(el) el.oninput = () => { F[k] = el.value; };
+  });
+
+  $("#send").onclick = submit;
+}
+
+function missing(){
+  if(!F.school) return "학교를 골라 주세요.";
+  const ds = SCHOOLS[F.school] || [];
+  if(ds.length > 1 && !F.div) return "참가 부문을 골라 주세요.";
+  if(!F.name.trim()) return "이름을 적어 주세요.";
+  if(who === "student" && !F.role) return "맡은 역할을 골라 주세요.";
+  const un = QS[who].filter(([k]) => !F.a[k]);
+  if(un.length) return `아직 ${un.length}문항이 비어 있습니다.`;
+  return "";
+}
+
+async function submit(){
+  const hint = $("#hint"), btn = $("#send");
+  const m = missing();
+  if(m){
+    hint.textContent = m;
+    const bad = QS[who].find(([k]) => !F.a[k]);
+    if(bad){ const el = document.querySelector(`.scale[data-q="${bad[0]}"]`);
+      if(el) el.scrollIntoView({ behavior:"smooth", block:"center" }); }
+    return;
+  }
+  hint.textContent = "";
+  btn.disabled = true; btn.textContent = "보내는 중…";
+
+  const div = F.div || (SCHOOLS[F.school] || [])[0] || "";
+  const name = F.name.trim();
+
+  /* 같은 이름이 이미 냈는지 한 번 확인합니다 */
+  try{
+    const r = await fetch("/api/data?cb=" + Date.now());
+    const d = await r.json();
+    const dup = Object.values(d.refs || {}).some(v =>
+      v && v.kind === "survey" && v.who === who && v.school === F.school &&
+      String(v.name || "").trim() === name);
+    if(dup && !confirm(`${F.school} ${name} 님 이름으로 이미 제출된 설문이 있습니다.\n그래도 보낼까요?`)){
+      btn.disabled = false; btn.textContent = "제출하기";
+      return;
+    }
+  }catch(e){ /* 확인에 실패해도 제출은 진행합니다 */ }
+
+  const body = {
+    type: "ref", request: true,
+    id: "Q" + Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+    value: {
+      kind: "survey", who, school: F.school, div, name,
+      role: who === "student" ? F.role : "지도교사",
+      a: { ...F.a }, t1: F.t1.trim(), t2: F.t2.trim()
+    }
+  };
+
+  try{
+    const r = await fetch("/api/data", { method:"POST",
+      headers:{ "Content-Type":"application/json" }, body: JSON.stringify(body) });
+    const j = await r.json();
+    if(!j.ok) throw new Error(j.msg || "fail");
+    store.set(F.school + "|" + name);
+    sent = true;
+    window.scrollTo({ top:0, behavior:"smooth" });
+    render();
+  }catch(e){
+    btn.disabled = false; btn.textContent = "제출하기";
+    hint.textContent = "보내지 못했습니다. 잠시 뒤 다시 눌러 주세요.";
+  }
+}
+
+function renderDone(){
+  $("#app").innerHTML = `<div class="done">
+    <b>잘 받았습니다. 고맙습니다!</b>
+    <span>적어 주신 내용은 선생님들이 모두 읽고<br>내년 대회 운영에 반영합니다.</span>
+    <button id="again">다른 사람도 이 기기에서 제출하기</button>
+  </div>`;
+  $("#again").onclick = reset;
+}
+
+function renderAlready(){
+  $("#app").innerHTML = `<div class="done">
+    <b>이미 제출하셨습니다</b>
+    <span>이 기기에서는 설문이 한 번 제출되었습니다.<br>
+      같은 학교의 다른 분이 쓰실 거라면 아래를 눌러 주세요.</span>
+    <button id="again">다른 사람도 이 기기에서 제출하기</button>
+  </div>`;
+  $("#again").onclick = reset;
+}
+
+function reset(){
+  store.clear();
+  sent = false; who = null;
+  F.school = ""; F.div = ""; F.name = ""; F.role = ""; F.a = {}; F.t1 = ""; F.t2 = "";
+  window.scrollTo({ top:0 });
+  render();
+}
+
+render();
+</script>
+</html>
