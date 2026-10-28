@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>챌린지 순위 · 2026 RAS 풋살</title>
+<style>
+:root{
+  --ink:#0F1E17; --paper:#F2F6F0; --card:#fff; --line:#DCE4DA; --mute:#66786E;
+  --turf:#0B3A2A; --grn:#00A651; --grn2:#0BC463; --lamp:#FFC53D; --vio:#8B5CF6;
+  --sky:#2F7FE0; --orn:#E8642B; --r:14px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-size:15px;line-height:1.5;padding-bottom:60px;
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR","Malgun Gothic",sans-serif}
+.wrap{max-width:680px;margin:0 auto;padding:0 14px}
+
+header{background:var(--turf);padding:17px 14px 16px}
+header .in{max-width:680px;margin:0 auto}
+h1{margin:0;font-size:20px;font-weight:800;color:#fff;letter-spacing:-.02em}
+h1 span{display:block;font-size:11.5px;font-weight:700;color:var(--grn2);margin-bottom:5px;letter-spacing:.07em}
+header p{margin:9px 0 0;font-size:13px;color:#A9CEBB;font-weight:600;line-height:1.6}
+
+.tabs{background:var(--turf);padding:0 14px 13px}
+.tabs .in{max-width:680px;margin:0 auto;display:flex;gap:6px}
+.tabs button{flex:1;padding:9px 6px;border:0;border-radius:10px;background:rgba(255,255,255,.15);
+  color:#CBE6D8;font:inherit;font-size:13.5px;font-weight:800;cursor:pointer;white-space:nowrap}
+.tabs button.on{background:#fff;color:var(--turf)}
+
+.sec{background:var(--card);border:1.5px solid var(--line);border-radius:var(--r);margin-top:13px;overflow:hidden}
+.sec > h3{margin:0;padding:11px 14px;background:var(--turf);color:#fff;font-size:14.5px;font-weight:800;
+  display:flex;align-items:center;gap:8px}
+.sec > h3 span{margin-left:auto;font-size:11px;font-weight:700;color:#9FCBB4}
+.sec > h3 b{width:22px;height:22px;border-radius:7px;display:grid;place-items:center;
+  font-size:12px;font-weight:900;color:#06301F;flex:0 0 auto}
+.pad{padding:11px 13px}
+
+table.t{width:100%;border-collapse:collapse;table-layout:fixed}
+table.t th{background:#F3F7F3;font-size:10.5px;font-weight:800;color:var(--mute);
+  padding:7px 2px;border-bottom:1.5px solid var(--line);text-align:center}
+table.t td{padding:9px 2px;text-align:center;border-bottom:1px solid #F0F3F0;
+  font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
+table.t .rk{width:38px;font-weight:900;color:var(--mute)}
+table.t .l{text-align:left;padding-left:11px;font-weight:800;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+table.t .tt{font-weight:900;font-size:15px;color:var(--turf)}
+table.t tbody tr:last-child td{border-bottom:0}
+table.t tr.top{background:#FFFBEF}
+table.t tr.top .rk{color:#B8860B}
+table.t tr.me{background:#EAF6EF}
+
+.bars{padding:4px 0}
+.bar{display:flex;align-items:center;gap:9px;padding:7px 13px}
+.bar u{text-decoration:none;flex:0 0 22px;font-size:12px;font-weight:900;color:var(--mute);text-align:right}
+.bar .nm{flex:0 0 72px;font-size:12.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .tr{flex:1;height:14px;border-radius:5px;background:#EEF2EE;overflow:hidden}
+.bar .tr span{display:block;height:100%;border-radius:5px}
+.bar em{font-style:normal;flex:0 0 68px;text-align:right;font-size:12.5px;font-weight:800;
+  font-variant-numeric:tabular-nums}
+.bar .who{font-size:10.5px;font-weight:700;color:var(--mute);margin-left:4px}
+
+.dayf{display:flex;gap:6px;margin-top:13px}
+.dayf button{flex:1;padding:10px 6px;border:1.5px solid var(--line);border-radius:11px;
+  background:var(--card);font:inherit;font-size:13px;font-weight:800;color:var(--mute);cursor:pointer;
+  white-space:nowrap}
+.dayf button i{font-style:normal;display:block;font-size:10.5px;font-weight:700;opacity:.75;margin-top:1px}
+.dayf button.on{border-color:var(--turf);background:var(--turf);color:#fff}
+.ff{margin-bottom:11px}
+.ff label{display:block;font-size:13px;font-weight:800;margin-bottom:6px}
+.ff input,.ff select{width:100%;padding:12px 13px;border:1.5px solid var(--line);border-radius:11px;
+  background:var(--paper);font:inherit;font-size:16px;font-weight:600;color:var(--ink);outline:0;
+  -webkit-appearance:none;appearance:none}
+.ff select{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path d='M1 1l5 5 5-5' stroke='%2366786E' stroke-width='2' fill='none' stroke-linecap='round'/></svg>");
+  background-repeat:no-repeat;background-position:right 13px center;padding-right:34px}
+.ff input:focus,.ff select:focus{border-color:var(--grn);background:var(--card)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+
+.mine{background:var(--card);border:1.5px solid var(--line);border-radius:13px;padding:13px 14px;margin-top:9px}
+.mine .hd{display:flex;align-items:baseline;gap:8px;margin-bottom:9px}
+.mine .hd b{font-size:15px;font-weight:900}
+.mine .hd span{font-size:11.5px;font-weight:700;color:var(--mute)}
+.mrow{display:flex;align-items:center;gap:9px;padding:8px 0;border-top:1px solid #F0F3F0}
+.mrow:first-of-type{border-top:0}
+.mrow i{font-style:normal;width:22px;height:22px;border-radius:7px;display:grid;place-items:center;
+  font-size:11px;font-weight:900;color:#06301F;flex:0 0 auto}
+.mrow .n{flex:1;font-size:13px;font-weight:800}
+.mrow .v{font-size:14px;font-weight:900;color:var(--turf);font-variant-numeric:tabular-nums}
+.mrow .r{font-size:11px;font-weight:800;color:var(--mute);flex:0 0 58px;text-align:right}
+
+.note{margin:13px 0 0;font-size:11.5px;color:var(--mute);font-weight:600;line-height:1.75;
+  background:#EBF1EC;border-radius:11px;padding:12px 14px}
+.note b{color:var(--ink)}
+.empty{background:var(--card);border:1.5px dashed var(--line);border-radius:var(--r);
+  padding:34px 20px;margin-top:13px;text-align:center;font-size:13.5px;font-weight:700;
+  color:var(--mute);line-height:1.8}
+.empty b{color:var(--ink)}
+footer{text-align:center;font-size:11.5px;color:#9BAAA1;font-weight:700;padding:26px 0 10px}
+</style>
+
+<header><div class="in">
+  <h1><span>2026 안산 RAS FESTA · 11월 14일 · 21일</span>챌린지 순위</h1>
+  <p>이틀 동안 네 가지 챌린지에 도전하고 학교 점수를 쌓으세요.
+    두 날의 기록을 합쳐 챌린지 우수팀을 뽑습니다.</p>
+</div></header>
+
+<div class="tabs"><div class="in">
+  <button data-t="tot">종합 순위</button>
+  <button data-t="each">챌린지별</button>
+  <button data-t="me">내 기록</button>
+</div></div>
+
+<div class="wrap" id="app"></div>
+<footer>안산교육지원청 · 안산학교체육지원단</footer>
+
+<script>
+/* ═══ 챌린지 설정 — 이 부분만 고치면 됩니다 ═══
+   dir : "high" 클수록 좋음 · "near" 목표값에 가까울수록 좋음
+   ══════════════════════════════════════════ */
+const CHAL = [
+  { k:"ball",  name:"사제동행 볼챌린지", unit:"회",   dir:"high", dp:0, color:"#0BC463",
+    hint:"선생님과 학생이 2인 1조로 도전합니다" },
+  { k:"gun",   name:"슈팅건 최고 속도왕", unit:"km/h", dir:"high", dp:0, color:"#E8642B",
+    hint:"슈팅건에 찍힌 최고 속도" },
+  { k:"timer", name:"4초 타이머",        unit:"초",   dir:"near", target:4, dp:2, color:"#2F7FE0",
+    hint:"4.00초에 가까울수록 좋습니다" },
+  { k:"who",   name:"누구게 챌린지",       unit:"개",   dir:"high", dp:0, color:"#8B5CF6",
+    hint:"맞힌 개수" }
+];
+/* 학교 점수 */
+const DAYS = ["11/14", "11/21"];   // 챌린지가 열리는 날
+const PART   = 10;                 // 종목별 참가점
+const RANKPT = [15, 12, 10, 8, 6]; // 1~5위 순위점
+const RANKMIN = 4;                 // 6위 이하
+
+const SCHOOLS = {"고잔고":["고등남"],"관산중":["중등남"],"광덕고":["고등남"],"국비고":["고등여"],"단원고":["고등남"],"동산고":["고등남","고등여"],"별망중":["중등여"],"본오중":["중등남","중등여"],"부곡중":["중등남","중등여"],"선부고":["고등여"],"선부중":["중등남"],"선일중":["중등남","중등여"],"성안고":["고등남"],"성호중":["중등남"],"송호고":["고등남"],"신길고":["고등남"],"안산공고":["고등남"],"양지고":["고등남","고등여"],"원곡고":["고등남","고등여"],"원곡중":["중등남","중등여"],"원일중":["중등남"],"이호중":["중등남","중등여"],"중앙중":["중등남"],"초지고":["고등남","고등여"],"해솔중":["중등남","중등여"]};
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g,
+  c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const chOf = k => CHAL.find(c => c.k === k);
+const fmt = (c, v) => v == null ? "–" : v.toFixed(c.dp) + c.unit;
+/* 점수가 좋을수록 큰 값이 되도록 뒤집습니다 */
+const good = (c, v) => c.dir === "near" ? -Math.abs(v - c.target) : v;
+
+let tab = "tot", recs = [], loaded = false;
+let dayF = "all";                  // 챌린지별 탭에서 보는 날짜
+const MY = { school:"", name:"" };
+try{ MY.school = localStorage.getItem("ras_ch_school") || ""; MY.name = localStorage.getItem("ras_ch_name") || ""; }catch(e){}
+
+async function load(){
+  try{
+    const r = await fetch("/api/data?cb=" + Date.now());
+    const d = await r.json();
+    recs = Object.entries(d.refs || {})
+      .filter(([,v]) => v && v.kind === "chal" && typeof v.v === "number")
+      .map(([id,v]) => ({ id, ...v }));
+  }catch(e){ recs = []; }
+  loaded = true;
+}
+
+/* ───────── 집계 ───────── */
+function inDay(r){ return dayF === "all" || r.d === dayF; }
+function bestBySchool(k, all){
+  const c = chOf(k), out = {};
+  recs.filter(r => r.ch === k && (all || inDay(r))).forEach(r => {
+    const cur = out[r.sc];
+    if(!cur || good(c, r.v) > good(c, cur.v)) out[r.sc] = r;
+  });
+  return Object.values(out).sort((a,b) => good(c,b.v) - good(c,a.v));
+}
+/* 동점은 같은 등수, 다음 등수는 건너뜁니다 */
+function ranked(list, c){
+  let rk = 0, prev = null;
+  return list.map((r,i) => {
+    const g = good(c, r.v);
+    if(prev === null || g !== prev){ rk = i + 1; prev = g; }
+    return { ...r, rank: rk };
+  });
+}
+function table(){
+  const tot = {};
+  const add = (sc) => tot[sc] || (tot[sc] = { sc, part:0, rankPt:0, done:[], total:0 });
+  CHAL.forEach(c => {
+    const rows = ranked(bestBySchool(c.k, true), c);
+    rows.forEach(r => {
+      const t = add(r.sc);
+      t.part += PART;
+      t.rankPt += (RANKPT[r.rank - 1] !== undefined ? RANKPT[r.rank - 1] : RANKMIN);
+      t.done.push(c.k);
+    });
+  });
+  const list = Object.values(tot);
+  list.forEach(t => t.total = t.part + t.rankPt);
+  list.sort((a,b) => b.total - a.total || a.sc.localeCompare(b.sc,'ko'));
+  let rk = 0, prev = null;
+  list.forEach((t,i) => { if(prev === null || t.total !== prev){ rk = i+1; prev = t.total; } t.rank = rk; });
+  return list;
+}
+
+/* ───────── 화면 ───────── */
+function render(){
+  document.querySelectorAll(".tabs button").forEach(b => b.classList.toggle("on", b.dataset.t === tab));
+  if(!loaded){ $("#app").innerHTML = `<div class="empty">불러오는 중…</div>`; return; }
+  ({ tot:renderTot, each:renderEach, me:renderMe })[tab]();
+}
+
+function renderTot(){
+  const list = table();
+  if(!list.length) return empty();
+  const max = list[0].total;
+  $("#app").innerHTML = `
+    <section class="sec">
+      <h3>학교 종합 순위<span>100점 만점</span></h3>
+      <table class="t">
+        <thead><tr><th class="rk">순위</th><th class="l">학교</th>
+          <th>종목</th><th>참가점</th><th>순위점</th><th>총점</th></tr></thead>
+        <tbody>${list.map(t => `
+          <tr class="${t.rank === 1 ? "top" : ""}${t.sc === MY.school ? " me" : ""}">
+            <td class="rk">${t.rank}</td>
+            <td class="l">${t.rank === 1 ? "★ " : ""}${esc(t.sc)}</td>
+            <td>${t.done.length}/${CHAL.length}</td>
+            <td>${t.part}</td><td>${t.rankPt}</td>
+            <td class="tt">${t.total}</td></tr>`).join("")}</tbody>
+      </table>
+    </section>
+    <p class="note">종목마다 도전하면 <b>참가점 ${PART}점</b>, 학교 최고기록 순위에 따라
+      <b>1위 ${RANKPT[0]} · 2위 ${RANKPT[1]} · 3위 ${RANKPT[2]} · 4위 ${RANKPT[3]} · 5위 ${RANKPT[4]} ·
+      그 아래 ${RANKMIN}점</b>을 더합니다.<br>
+      네 종목 모두 도전하면 그것만으로 ${PART*CHAL.length + RANKMIN*CHAL.length}점이 확보됩니다.<br>
+      <b>11월 14일과 21일 두 날의 기록을 모두 합쳐</b> 계산하며, 종목별로 그 학교 최고기록 하나만 들어갑니다.
+      아직 안 한 종목이 있으면 지금 도전하세요.</p>`;
+}
+
+function renderEach(){
+  const any = CHAL.some(c => bestBySchool(c.k, true).length);
+  if(!any) return empty();
+  const cnt = d => recs.filter(r => d === "all" || r.d === d).length;
+  const chips = `<div class="dayf">${
+    [["all","두 날 전체"], ...DAYS.map(d => [d, d.replace("/", "월 ") + "일"])]
+      .map(([k,t]) => `<button data-d="${esc(k)}" class="${dayF===k?"on":""}">${esc(t)}
+        <i>${cnt(k)}</i></button>`).join("")}</div>`;
+  $("#app").innerHTML = chips + CHAL.map(c => {
+    const rows = ranked(bestBySchool(c.k), c).slice(0, 8);
+    const dayTag = dayF === "all" ? "" : " · " + dayF;
+    if(!rows.length) return `
+      <section class="sec"><h3><b style="background:${c.color}">${c.name[0]}</b>${esc(c.name)}
+        <span>아직 기록 없음${esc(dayTag)}</span></h3>
+        <div class="pad" style="font-size:12.5px;color:var(--mute);font-weight:700">
+          ${esc(c.hint)} · 첫 기록의 주인공이 되어 보세요.</div></section>`;
+    const gs = rows.map(r => good(c, r.v));
+    const lo = Math.min(...gs), span = Math.max(...gs) - lo;
+    /* 한 학교뿐이거나 전부 같은 기록이면 막대를 꽉 채웁니다 */
+    const wid = g => span ? Math.round((g - lo) / span * 72) + 28 : 100;
+    return `
+    <section class="sec">
+      <h3><b style="background:${c.color}">${c.name[0]}</b>${esc(c.name)}
+        <span>${esc(c.hint)}${esc(dayTag)}</span></h3>
+      <div class="bars">${rows.map(r => `
+        <div class="bar">
+          <u>${r.rank}</u>
+          <div class="nm">${esc(r.sc)}</div>
+          <div class="tr"><span style="width:${wid(good(c,r.v))}%;background:${c.color}"></span></div>
+          <em>${fmt(c, r.v)}</em>
+        </div>
+        <div class="bar" style="padding-top:0;padding-bottom:9px">
+          <u></u><div class="nm"></div>
+          <div class="tr" style="background:none;height:auto">
+            <span class="who" style="display:block;background:none">${esc(r.nm || "")}</span></div>
+          <em></em>
+        </div>`).join("")}</div>
+    </section>`;
+  }).join("");
+  document.querySelectorAll("[data-d]").forEach(b =>
+    b.onclick = () => { dayF = b.dataset.d; render(); });
+}
+
+function renderMe(){
+  const sc = MY.school, nm = (MY.name || "").trim();
+  const mine = (sc && nm)
+    ? recs.filter(r => r.sc === sc && String(r.nm || "").trim() === nm)
+    : [];
+
+  $("#app").innerHTML = `
+    <section class="sec">
+      <h3>내 기록 찾기<span>부스에서 적어 준 이름 그대로</span></h3>
+      <div class="pad">
+        <div class="two">
+          <div class="ff"><label>학교</label>
+            <select id="mSchool"><option value="">학교</option>
+              ${Object.keys(SCHOOLS).map(s =>
+                `<option value="${esc(s)}"${s===sc?" selected":""}>${esc(s)}</option>`).join("")}
+            </select></div>
+          <div class="ff"><label>이름</label>
+            <input id="mName" value="${esc(nm)}" placeholder="이름" autocomplete="off"></div>
+        </div>
+      </div>
+    </section>
+    ${(!sc || !nm) ? `<div class="empty">학교와 이름을 넣으면<br>내가 세운 기록과 순위가 나옵니다.</div>`
+      : (!mine.length
+        ? `<div class="empty"><b>${esc(sc)} ${esc(nm)} 님의 기록이 아직 없습니다.</b><br>
+            이름이 다르게 적혔을 수 있습니다. 부스 담당 선생님께 확인해 보세요.</div>`
+        : `<div class="mine">
+            <div class="hd"><b>${esc(sc)} ${esc(nm)}</b><span>${mine.length}개 종목 도전</span></div>
+            ${CHAL.map(c => {
+              const my = mine.filter(r => r.ch === c.k);
+              if(!my.length) return "";
+              const best = my.reduce((a,b) => good(c,b.v) > good(c,a.v) ? b : a);
+              const all = ranked(recs.filter(r => r.ch === c.k)
+                .sort((a,b) => good(c,b.v) - good(c,a.v)), c);
+              const pos = all.findIndex(r => r.id === best.id);
+              return `<div class="mrow">
+                <i style="background:${c.color}">${esc(c.name[0])}</i>
+                <span class="n">${esc(c.name)}</span>
+                <span class="v">${fmt(c, best.v)}</span>
+                <span class="r">전체 ${pos >= 0 ? all[pos].rank : "–"}위${best.d ? "<br>" + esc(best.d) : ""}</span>
+              </div>`;
+            }).join("")}
+            ${CHAL.filter(c => !mine.some(r => r.ch === c.k)).length
+              ? `<p style="margin:11px 0 0;font-size:12px;font-weight:700;color:var(--mute);line-height:1.7">
+                  아직 안 한 종목 — ${CHAL.filter(c => !mine.some(r => r.ch === c.k))
+                    .map(c => esc(c.name)).join(" · ")}<br>도전하면 우리 학교 점수가 올라갑니다.</p>` : ""}
+          </div>`)}
+    <p class="note">같은 종목을 여러 번 해도 됩니다. 학교 점수에는 <b>그 학교 최고기록</b>만 들어가고,
+      내 기록에는 <b>내 최고기록</b>이 뜹니다.</p>`;
+
+  const s = $("#mSchool"), n = $("#mName");
+  s.onchange = () => { MY.school = s.value; save(); render(); };
+  let t; n.oninput = () => { MY.name = n.value; clearTimeout(t); t = setTimeout(() => { save(); render(); n2(); }, 450); };
+  function n2(){ const el = $("#mName"); if(el){ el.focus(); el.setSelectionRange(el.value.length, el.value.length); } }
+}
+function save(){ try{ localStorage.setItem("ras_ch_school", MY.school); localStorage.setItem("ras_ch_name", MY.name); }catch(e){} }
+
+function empty(){
+  $("#app").innerHTML = `<div class="empty"><b>아직 올라온 기록이 없습니다.</b><br>
+    11월 14일 · 21일 축제 당일, 부스에서 도전하면 이곳에 바로 올라옵니다.<br><br>
+    ${CHAL.map(c => esc(c.name)).join(" · ")}</div>`;
+}
+
+document.querySelectorAll(".tabs button").forEach(b =>
+  b.onclick = async () => { tab = b.dataset.t; render(); await load(); render(); });
+
+render();
+load().then(render);
+/* 축제 당일에는 30초마다 저절로 새로고침됩니다 */
+setInterval(() => { if(tab !== "me") load().then(render); }, 30000);
+</script>
+</html>
