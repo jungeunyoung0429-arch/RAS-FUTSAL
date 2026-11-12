@@ -4,7 +4,7 @@ import { TOKENS } from "./data.js";
 // 사진 올리기(/photo)와 기록 화면 사진 승인(/record)이 부르는 사진 저장 창구.
 // 올리기: { data: "data:image/jpeg;base64,...", type, school } → { ok, url }
 // 지우기: { action: "del", url, token } → 접속 코드가 맞을 때만
-// Vercel 프로젝트에 Blob 저장소가 연결돼 있어야 한다(환경변수 BLOB_READ_WRITE_TOKEN).
+// Vercel 프로젝트에 Public Blob 저장소가 연결돼 있어야 한다(BLOB_READ_WRITE_TOKEN 또는 OIDC, SDK 가 알아서 고른다).
 const MAX_BYTES = 3 * 1024 * 1024;
 const TYPES = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
 
@@ -20,10 +20,6 @@ export default async function handler(req, res) {
   } catch (e) {
     return res.status(400).json({ ok: false, msg: "body" });
   }
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    return res.status(503).json({ ok: false, msg: "사진 저장소가 아직 연결되지 않았습니다" });
-  }
-
   try {
     if (body.action === "del") {
       if (TOKENS[body.token] === undefined) return res.status(403).json({ ok: false, msg: "token" });
@@ -43,6 +39,10 @@ export default async function handler(req, res) {
     const blob = await put(name, buf, { access: "public", contentType: m[1] });
     return res.status(200).json({ ok: true, url: blob.url });
   } catch (e) {
+    // Blob 저장소가 연결되지 않으면 SDK 가 토큰 없음 오류를 낸다(BLOB_READ_WRITE_TOKEN 또는 OIDC 둘 다 없음)
+    if (/token/i.test(String(e && e.message))) {
+      return res.status(503).json({ ok: false, msg: "사진 저장소가 아직 연결되지 않았습니다" });
+    }
     return res.status(500).json({ ok: false, msg: "사진 저장 실패" });
   }
 }
