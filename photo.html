@@ -3,98 +3,44 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>베스트컷 · 2026 RAS 풋살</title>
-<style>
-:root{
-  --ink:#0F1E17; --paper:#F2F6F0; --card:#fff; --line:#DCE4DA; --mute:#66786E;
-  --turf:#0B3A2A; --grn:#00A651; --grn2:#0BC463; --lamp:#FFC53D; --vio:#8B5CF6;
-  --heart:#E8426B; --r:14px;
-}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;padding:0}
-body{background:var(--paper);color:var(--ink);font-size:15px;line-height:1.5;padding-bottom:60px;
-  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR","Malgun Gothic",sans-serif}
-.wrap{max-width:680px;margin:0 auto;padding:0 14px}
-
-header{background:var(--turf);padding:17px 14px 16px}
-header .in{max-width:680px;margin:0 auto}
-h1{margin:0;font-size:20px;font-weight:800;color:#fff;letter-spacing:-.02em}
-h1 span{display:block;font-size:11.5px;font-weight:700;color:var(--grn2);margin-bottom:5px;letter-spacing:.07em}
-header p{margin:9px 0 0;font-size:13px;color:#A9CEBB;font-weight:600;line-height:1.6}
-
-.tabs{background:var(--turf);padding:0 14px 13px}
-.tabs .in{max-width:680px;margin:0 auto;display:flex;gap:6px}
-.tabs button{flex:1;padding:9px 10px;border:0;border-radius:10px;background:rgba(255,255,255,.15);
-  color:#CBE6D8;font:inherit;font-size:13.5px;font-weight:800;cursor:pointer}
-.tabs button.on{background:#fff;color:var(--turf)}
-
-.card{background:var(--card);border:1.5px solid var(--line);border-radius:var(--r);padding:16px;margin-top:13px}
-.card > h3{margin:0 0 4px;font-size:15.5px;font-weight:900}
-.card > .sub{font-size:12.5px;color:var(--mute);font-weight:600;line-height:1.6;margin-bottom:13px}
-
-.ff{margin-bottom:11px}
-.ff:last-child{margin-bottom:0}
-.ff label{display:block;font-size:13px;font-weight:800;margin-bottom:6px}
-.ff label em{font-style:normal;font-weight:600;color:var(--mute);margin-left:5px;font-size:12px}
-.ff input,.ff select{width:100%;padding:12px 13px;border:1.5px solid var(--line);border-radius:11px;
-  background:var(--paper);font:inherit;font-size:16px;font-weight:600;color:var(--ink);outline:0;
-  -webkit-appearance:none;appearance:none}
-.ff select{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path d='M1 1l5 5 5-5' stroke='%2366786E' stroke-width='2' fill='none' stroke-linecap='round'/></svg>");
-  background-repeat:no-repeat;background-position:right 13px center;padding-right:34px}
-.ff input:focus,.ff select:focus{border-color:var(--grn);background:var(--card)}
-
-.drop{border:2px dashed var(--line);border-radius:13px;background:var(--paper);padding:26px 16px;
-  text-align:center;cursor:pointer}
-.drop b{display:block;font-size:15px;font-weight:900;color:var(--turf);margin-bottom:4px}
-.drop span{font-size:12px;color:var(--mute);font-weight:600;line-height:1.6}
-.drop.has{border-style:solid;border-color:var(--grn);padding:10px}
-.drop img{max-width:100%;border-radius:10px;display:block;margin:0 auto}
-.drop .again{margin-top:9px;font-size:12px;font-weight:800;color:var(--mute)}
+<meta name="theme-color" content="#101412">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="sub.css">
+<style>.skip{position:absolute;z-index:30;top:-100px;left:10px;background:var(--lime);color:var(--lime-ink);padding:10px 14px;font-weight:800}.skip:focus{top:6px}
+.drop{border:1.5px dashed #46513f;border-radius:var(--r);background:var(--field);padding:28px 16px;text-align:center;cursor:pointer;transition:border-color .15s}
+.drop:hover{border-color:var(--lime)}
+.drop b{display:block;font-size:15.5px;font-weight:850;color:var(--lime);margin-bottom:4px}
+.drop span{font-size:12.5px;color:var(--mute);font-weight:550;line-height:1.6}
+.drop.has{border-style:solid;border-color:var(--lime);padding:10px}
+.drop img{max-width:100%;border-radius:4px;display:block;margin:0 auto}
+.drop .again{margin-top:9px;font-size:12.5px;font-weight:700;color:var(--mute)}
 #file{display:none}
-
-.send{width:100%;margin-top:13px;padding:16px;border:0;border-radius:13px;background:var(--grn);color:#fff;
-  font:inherit;font-size:16px;font-weight:900;cursor:pointer}
-.send:disabled{background:#B8C9BF;cursor:default}
-.hintbar{margin-top:9px;font-size:12.5px;font-weight:700;color:#C0392B;text-align:center;min-height:17px}
-.hintbar.ok{color:var(--grn)}
-
-.g{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:13px}
-.ph{background:var(--card);border:1.5px solid var(--line);border-radius:13px;overflow:hidden;position:relative}
-.ph.best{border-color:var(--lamp);border-width:2.5px}
-.ph .im{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:#E7ECE8;cursor:pointer}
-.ph .bd{padding:9px 10px 10px}
-.ph .tt{font-size:13px;font-weight:900;letter-spacing:-.01em}
-.ph .tt i{font-style:normal;font-size:10.5px;font-weight:700;color:var(--mute);margin-left:4px}
-.ph .cp{margin:3px 0 0;font-size:11.5px;color:var(--mute);font-weight:600;line-height:1.5;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.ph .hb{margin-top:8px;width:100%;padding:8px;border:1.5px solid var(--line);border-radius:9px;
-  background:var(--paper);font:inherit;font-size:12.5px;font-weight:800;color:var(--mute);cursor:pointer;
-  display:flex;align-items:center;justify-content:center;gap:5px}
-.ph .hb.on{border-color:var(--heart);background:#FFF0F4;color:var(--heart)}
-.ph .crown{position:absolute;top:8px;left:8px;background:var(--lamp);color:#4A3200;
-  font-size:10.5px;font-weight:900;padding:4px 8px;border-radius:7px}
-
-.lb{position:fixed;inset:0;z-index:90;background:rgba(7,20,15,.93);display:none;
-  align-items:center;justify-content:center;padding:18px}
+.g{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.ph{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;position:relative;min-width:0}
+.ph.best{border-color:var(--lamp);box-shadow:0 0 0 1px var(--lamp)}
+.ph .im{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:#202821;cursor:zoom-in}
+.ph .bd{padding:10px 11px 11px}
+.ph .tt{font-size:13.5px;font-weight:850;letter-spacing:-.01em}
+.ph .tt i{font-style:normal;font-size:11px;font-weight:600;color:var(--mute);margin-left:4px}
+.ph .cp{margin:4px 0 0;font-size:12px;color:var(--mute);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ph .hb{margin-top:9px;width:100%;padding:9px;border:1px solid var(--line);border-radius:5px;background:var(--field);font-size:13px;font-weight:800;color:var(--mute);display:flex;align-items:center;justify-content:center;gap:5px}
+.ph .hb.on{border-color:var(--heart);background:#36161f;color:var(--heart)}
+.ph .crown{position:absolute;top:8px;left:8px;background:var(--lamp);color:#3a2800;font-size:11px;font-weight:900;padding:4px 8px;border-radius:3px}
+.lb{position:fixed;inset:0;z-index:90;background:rgba(6,9,7,.94);display:none;align-items:center;justify-content:center;padding:18px}
 .lb.on{display:flex}
-.lb img{max-width:100%;max-height:78vh;border-radius:12px;display:block}
-.lb .cap{position:absolute;left:0;right:0;bottom:22px;text-align:center;color:#DCF0E5;
-  font-size:13px;font-weight:700;padding:0 20px;line-height:1.6}
-.lb .x{position:absolute;top:16px;right:16px;width:38px;height:38px;border:0;border-radius:50%;
-  background:rgba(255,255,255,.18);color:#fff;font-size:19px;cursor:pointer;line-height:1}
-
-.emptybox{background:var(--card);border:1.5px dashed var(--line);border-radius:var(--r);
-  padding:34px 20px;margin-top:13px;text-align:center;font-size:13.5px;font-weight:700;
-  color:var(--mute);line-height:1.8}
-.emptybox b{color:var(--ink)}
-.priv{margin:13px 0 0;font-size:11.5px;color:var(--mute);font-weight:600;line-height:1.7;
-  background:#EBF1EC;border-radius:11px;padding:12px 14px}
-footer{text-align:center;font-size:11.5px;color:#9BAAA1;font-weight:700;padding:26px 0 10px}
+.lb img{max-width:100%;max-height:78vh;border-radius:4px;display:block}
+.lb .cap{position:absolute;left:0;right:0;bottom:max(22px,env(safe-area-inset-bottom));text-align:center;color:#dfe6dc;font-size:13.5px;font-weight:650;padding:0 20px;line-height:1.6}
+.lb .x{position:absolute;top:max(16px,env(safe-area-inset-top));right:16px;width:40px;height:40px;border:1px solid #4a544c;border-radius:50%;background:#1a201d;color:#fff;font-size:18px;line-height:1}
+@media (min-width:700px){.g{grid-template-columns:repeat(3,1fr);gap:12px}}
 </style>
 
-<header><div class="in">
-  <h1><span>2026 안산 RAS FESTA · 학생주도 풋살</span>우리 팀 베스트컷</h1>
-  <p>경기 중 찍은 사진을 올려 주세요. 선생님 확인을 거쳐 공개되고,
-    가장 많은 하트를 받은 사진은 베스트컷으로 시상합니다.</p>
+<a class="skip" href="#main">본문 바로가기</a>
+<div class="top"><div class="in"><a class="brand" href="/" aria-label="RAS FUTSAL 메인으로"><i class="mark" aria-hidden="true"><b></b><b></b><b></b></i>RAS FUTSAL</a>
+<nav aria-label="바로가기"><a class="home" href="/#join">함께하기</a><a class="lv" href="/live"><i aria-hidden="true">◉</i>라이브 센터</a></nav></div></div>
+<header class="phd" id="main"><div class="in">
+  <div class="label"><i></i>PHOTO <em>/</em> 2026 RAS FESTA</div>
+  <h1>우리 팀 베스트컷<span>.</span></h1>
+  <p>경기 중 찍은 사진을 올려 주세요. 선생님 확인을 거쳐 공개되고, 가장 많은 하트를 받은 사진은 베스트컷으로 시상합니다.</p>
 </div></header>
 
 <div class="tabs"><div class="in">
