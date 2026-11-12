@@ -3,7 +3,7 @@ import { Redis } from "@upstash/redis";
 const redis = Redis.fromEnv();
 const KEY = "ras2026";
 
-const TOKENS = {
+export const TOKENS = {
   "2026": 0,
 };
 const LABEL = { 0: "본부 · 전체 구장", 1: "A구장", 2: "B구장", 3: "C구장", 4: "D구장" };
