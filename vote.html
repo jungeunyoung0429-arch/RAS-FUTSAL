@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>우천 운영 의견 투표 · RAS FESTA</title>
+<meta name="description" content="11월 14일 우천 시 운영 방식에 대한 선수·지도교사 의견 투표">
+<link rel="icon" href="/icon.svg">
+<style>
+:root{--bg:#0E1210;--card:#171D19;--line:#2A332D;--ink:#F2F5F3;--mute:#9AA8A0;--accent:#C8F046;--warm:#F0A84A}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Pretendard","Apple SD Gothic Neo","맑은 고딕",system-ui,sans-serif;
+  -webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;padding:22px 16px 60px}
+.eyebrow{display:flex;align-items:center;gap:9px;font-size:11.5px;font-weight:800;
+  letter-spacing:.14em;color:var(--accent);margin-bottom:10px}
+.eyebrow i{display:block;width:18px;height:2px;background:var(--accent);font-style:normal}
+h1{margin:0 0 6px;font-size:27px;line-height:1.22;letter-spacing:-.02em}
+h1 em{font-style:normal;color:var(--accent)}
+.lead{margin:0 0 20px;font-size:13.5px;line-height:1.65;color:var(--mute)}
+.step{margin:22px 0 10px;font-size:12px;font-weight:800;letter-spacing:.08em;color:var(--mute)}
+.step b{color:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.grid button{padding:11px 4px;border-radius:11px;border:1px solid var(--line);background:var(--card);
+  color:var(--ink);font-size:13px;font-weight:700;font-family:inherit;cursor:pointer}
+.grid button.on{background:var(--accent);color:#10140F;border-color:var(--accent)}
+.opts{display:grid;gap:10px}
+.opt{display:block;width:100%;text-align:left;padding:15px 16px;border-radius:14px;
+  border:1px solid var(--line);background:var(--card);color:var(--ink);font-family:inherit;cursor:pointer}
+.opt.on{border-color:var(--accent);background:#1C2418;box-shadow:inset 0 0 0 1px var(--accent)}
+.opt b{display:block;font-size:16px;margin-bottom:5px}
+.opt span{display:block;font-size:12.5px;line-height:1.6;color:var(--mute)}
+.opt.on b{color:var(--accent)}
+.n{display:flex;align-items:center;gap:10px;margin-top:14px;padding:12px 14px;
+  border:1px solid var(--line);border-radius:12px;background:var(--card);font-size:13px}
+.n span{color:var(--mute);flex:1;line-height:1.5}
+.n i{font-style:normal;font-weight:800;min-width:26px;text-align:center;font-size:16px}
+.n button{width:34px;height:34px;border-radius:9px;border:1px solid var(--line);
+  background:#20271F;color:var(--ink);font-size:18px;font-family:inherit;cursor:pointer}
+.go{width:100%;margin-top:20px;padding:17px;border:0;border-radius:14px;background:var(--accent);
+  color:#10140F;font-size:17px;font-weight:800;font-family:inherit;cursor:pointer}
+.go:disabled{opacity:.35;cursor:default}
+.hint{margin-top:11px;font-size:12px;color:var(--mute);text-align:center;line-height:1.6}
+.done{text-align:center;padding:34px 18px;border:1px solid var(--line);border-radius:16px;background:var(--card)}
+.done b{display:block;font-size:21px;margin-bottom:8px;color:var(--accent)}
+.done span{display:block;font-size:13.5px;color:var(--mute);line-height:1.7}
+.res{margin-top:22px;display:grid;gap:11px}
+.bar{padding:13px 15px;border:1px solid var(--line);border-radius:13px;background:var(--card)}
+.bar .t{display:flex;justify-content:space-between;align-items:baseline;font-size:13.5px;font-weight:700;margin-bottom:8px}
+.bar .t em{font-style:normal;color:var(--accent);font-size:15px}
+.bar .g{height:9px;border-radius:99px;background:#232B24;overflow:hidden}
+.bar .g i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .4s}
+.tot{margin-top:14px;font-size:12.5px;color:var(--mute);text-align:center}
+.warn{margin-top:16px;padding:12px 14px;border-radius:12px;background:rgba(240,168,74,.09);
+  border:1px solid rgba(240,168,74,.3);font-size:12.5px;line-height:1.65;color:#E8C48E}
+a.back{display:inline-block;margin-top:24px;font-size:13px;color:var(--mute);text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+const SCHOOLS = {"고잔고":["고등남"],"관산중":["중등남"],"광덕고":["고등남"],"국비고":["고등여"],"단원고":["고등남"],"동산고":["고등남","고등여"],"별망중":["중등여"],"본오중":["중등남","중등여"],"부곡중":["중등남","중등여"],"선부고":["고등여"],"선부중":["중등남"],"선일중":["중등남","중등여"],"성안고":["고등남"],"성호중":["중등남"],"송호고":["고등남"],"안산공고":["고등남"],"양지고":["고등남","고등여"],"원곡고":["고등남","고등여"],"원곡중":["중등남","중등여"],"원일중":["중등남"],"이호중":["중등남","중등여"],"중앙중":["중등남"],"초지고":["고등남","고등여"],"해솔중":["중등남","중등여"]};
+const TOPIC = "1114rain";
+const OPTS = [
+  ["wet",   "비를 맞으며 수중전을 한다",  "예정대로 운동장에서 진행합니다. 옷이 젖고 바닥이 미끄러울 수 있습니다."],
+  ["pk",    "승부차기를 한다",            "오늘 경기를 승부차기로 가립니다. 오늘 안에 결과가 나오고 다음 주 일정은 그대로입니다."],
+  ["delay", "다음 주로 미룬다",           "오늘은 돌아가고 11월 21일에 몰아서 합니다. 그날 하루에 7~8경기를 뛰게 되고 오후 3시 가까이 끝납니다."]
+];
+/* 11월 14일 07:00 전에는 열리지 않습니다 (미리 올려둬도 아무도 못 봅니다) */
+const OPEN_AT = new Date("2026-11-14T07:00:00+09:00");
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const KEY = "ras_vote_" + TOPIC;
+const seen = () => { try { return localStorage.getItem(KEY); } catch(e) { return null; } };
+const mark = () => { try { localStorage.setItem(KEY, "1"); } catch(e) {} };
+
+const F = { school:"", choice:"", n:1 };
+const Q = new URLSearchParams(location.search);
+const early = Date.now() < OPEN_AT.getTime() && !Q.has("preview") && !Q.has("r");   /* 집계 화면(?r=1)은 언제든 열립니다 */
+let view = early ? "soon" : (Q.has("r") ? "res" : (seen() ? "done" : "form"));
+let tally = null;
+
+async function load(){
+  try{
+    const r = await fetch("/api/data?cb=" + Date.now());
+    const d = await r.json();
+    const t = { wet:0, pk:0, delay:0, schools:new Set(), people:0 };
+    Object.values(d.refs || {}).forEach(v => {
+      if(!v || v.kind !== "vote" || v.topic !== TOPIC) return;
+      const n = Math.max(1, Math.min(9, +v.n || 1));
+      if(t[v.choice] === undefined) return;
+      t[v.choice] += n; t.people += n;
+      if(v.school) t.schools.add(v.school);
+    });
+    tally = t;
+  }catch(e){ tally = null; }
+  render();
+}
+
+function head(){
+  return `<div class="eyebrow"><i></i>VOTE · 11월 14일</div>
+    <h1>비가 오면<br><em>어떻게 할까요?</em></h1>`;
+}
+
+function renderForm(){
+  const names = Object.keys(SCHOOLS).sort();
+  $("#app").innerHTML = head() +
+  `<p class="lead">오늘 경기를 치르기 어려울 만큼 비가 많이 올 경우에
+     어떻게 할지 함께 정합니다. 선수와 지도교사 모두 참여해 주세요.</p>
+   <div class="step"><b>1</b> &nbsp;우리 학교를 고르세요</div>
+   <div class="grid" id="sc">${names.map(n =>
+     `<button data-s="${esc(n)}"${F.school===n?' class="on"':''}>${esc(n)}</button>`).join("")}</div>
+   <div class="step"><b>2</b> &nbsp;어떻게 하면 좋을까요</div>
+   <div class="opts" id="op">${OPTS.map(([k,t,d]) =>
+     `<button class="opt${F.choice===k?' on':''}" data-o="${k}"><b>${t}</b><span>${d}</span></button>`).join("")}</div>
+   <div class="n">
+     <span>이 휴대폰으로 함께 투표하는 인원<br>(휴대폰이 없는 친구가 있으면 늘려 주세요)</span>
+     <button id="mi">−</button><i id="nv">${F.n}</i><button id="pl">＋</button>
+   </div>
+   <button class="go" id="go"${F.school && F.choice ? "" : " disabled"}>투표하기</button>
+   <p class="hint">한 번만 투표할 수 있습니다.</p>`;
+
+  $("#sc").onclick = e => { const b = e.target.closest("button"); if(!b) return;
+    F.school = b.dataset.s; renderForm(); };
+  $("#op").onclick = e => { const b = e.target.closest("button"); if(!b) return;
+    F.choice = b.dataset.o; renderForm(); };
+  $("#mi").onclick = () => { F.n = Math.max(1, F.n - 1); $("#nv").textContent = F.n; };
+  $("#pl").onclick = () => { F.n = Math.min(9, F.n + 1); $("#nv").textContent = F.n; };
+  $("#go").onclick = send;
+}
+
+async function send(){
+  const btn = $("#go"); btn.disabled = true; btn.textContent = "보내는 중…";
+  const body = { type:"ref", request:true,
+    id: "V" + Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+    value: { kind:"vote", topic:TOPIC, school:F.school,
+             div:(SCHOOLS[F.school]||[])[0]||"", choice:F.choice, n:F.n } };
+  try{
+    const r = await fetch("/api/data", { method:"POST",
+      headers:{ "Content-Type":"application/json" }, body: JSON.stringify(body) });
+    const j = await r.json();
+    if(!j.ok) throw new Error(j.msg || "fail");
+    mark(); view = "done"; load();
+  }catch(e){
+    btn.disabled = false; btn.textContent = "투표하기";
+    $(".hint").textContent = "보내지 못했습니다. 잠시 뒤 다시 눌러 주세요.";
+  }
+}
+
+function bars(){
+  if(!tally) return `<p class="tot">집계를 불러오지 못했습니다.</p>`;
+  const max = Math.max(1, tally.wet, tally.pk, tally.delay);
+  return `<div class="res">${OPTS.map(([k,t]) => `
+    <div class="bar"><div class="t"><span>${t}</span><em>${tally[k]}표</em></div>
+      <div class="g"><i style="width:${Math.round(tally[k]/max*100)}%"></i></div></div>`).join("")}
+    </div><p class="tot">${tally.people}명 참여 · ${tally.schools.size}개교</p>`;
+}
+
+function renderDone(){
+  $("#app").innerHTML = head() +
+  `<div class="done"><b>투표가 끝났습니다</b>
+     <span>의견 고맙습니다.<br>지도교사 선생님들과 함께 보고 결정하겠습니다.</span></div>
+   ${bars()}
+   <div class="warn">결과는 참고 자료입니다. 안전에 문제가 있다고 판단되면
+     표와 관계없이 경기를 중단합니다.</div>
+   <a class="back" href="/">← 대회 홈으로</a>`;
+}
+
+function renderSoon(){
+  $("#app").innerHTML = head() +
+  `<div class="done"><b>아직 열리지 않았습니다</b>
+     <span>11월 14일 아침 개회식 때 열립니다.<br>그때 다시 들어와 주세요.</span></div>
+   <a class="back" href="/">← 대회 홈으로</a>`;
+}
+
+function renderRes(){
+  $("#app").innerHTML = `<div class="eyebrow"><i></i>RESULT · 11월 14일</div>
+    <h1>투표 <em>집계</em></h1>
+    <p class="lead">10초마다 새로 고쳐집니다.</p>${bars()}
+    <a class="back" href="/vote">← 투표 화면</a>`;
+}
+
+function render(){ ({form:renderForm, done:renderDone, res:renderRes, soon:renderSoon})[view](); }
+render();
+if(!early) load();
+if(view === "res") setInterval(load, 10000);
+</script>
+</body>
+</html>

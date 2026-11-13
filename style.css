@@ -19,3 +19,10 @@ dialog{color:var(--paper);background:var(--ink);border:1px solid #4e5b4e;border-
 .join-card.ext{background:linear-gradient(125deg,#232b1f,#1b2019);border-color:#46522f}
 .join-card.ext small{color:var(--accent,#C8F046)}
 .join-card.ext:hover,.join-card.ext:focus-visible{border-color:var(--accent,#C8F046)}
+
+/* 운영진 전용 카드 */
+.join-card.staff{background:linear-gradient(125deg,#1E1F22,#17181A);border-color:#3A3D42}
+.join-card.staff small{color:#9AA0A8}
+.join-card.staff b i{display:inline-block;margin-left:7px;font-style:normal;font-size:10.5px;
+  font-weight:700;letter-spacing:.04em;color:#0E1210;background:#9AA0A8;padding:2px 7px;border-radius:999px;vertical-align:middle}
+.join-card.staff:hover,.join-card.staff:focus-visible{border-color:#9AA0A8}
