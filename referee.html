@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>학생심판 배정 · 2026 RAS 풋살</title>
+<meta name="theme-color" content="#101412">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="sub.css">
+<style>.skip{position:absolute;z-index:30;top:-100px;left:10px;background:var(--lime);color:var(--lime-ink);padding:10px 14px;font-weight:800}.skip:focus{top:6px}
+:root{--w:1000px}
+.search{margin:18px 0 8px;position:relative;max-width:620px}
+.search input{width:100%;padding:15px 48px 15px 16px;border:1px solid var(--line);border-radius:6px;background:var(--field);font-size:16px;font-weight:650;color:var(--text);outline:0;-webkit-appearance:none;appearance:none}
+.search input:focus{border-color:var(--lime)}
+.search input::placeholder{color:#66706a;font-weight:500}
+.search input::-webkit-search-cancel-button,.search input::-webkit-search-decoration{-webkit-appearance:none;appearance:none}
+.search .ico{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;pointer-events:none;filter:grayscale(1)}
+.clr{position:absolute;right:11px;top:50%;transform:translateY(-50%);border:0;background:#2a312c;width:28px;height:28px;border-radius:50%;color:var(--mute);font-size:13px;line-height:1;display:none}
+.clr.show{display:block}
+.hit{background:var(--lime-tint);border:1px solid var(--lime);border-radius:var(--r);padding:16px;margin-bottom:8px;display:none;max-width:620px}
+.hit.show{display:block}
+.hit .nm{font-size:21px;font-weight:900;letter-spacing:-.02em}
+.hit .nm small{font-size:13px;font-weight:650;color:var(--mute);margin-left:6px}
+.hit .rows{margin-top:12px;display:flex;flex-direction:column;gap:7px}
+.hit .row{display:flex;align-items:center;gap:6px 10px;background:#141a14;border:1px solid #33402b;border-radius:6px;padding:10px 12px;flex-wrap:wrap}
+.hit .row .ct{font:italic 800 15px/1.2 Archivo,Pre,sans-serif;color:var(--lime)}
+.hit .row b{font-size:14.5px;font-weight:800}
+.hit .row em{font-style:normal;font-size:12.5px;color:var(--mute);font-weight:650;margin-left:auto}
+.miss{background:#2a2414;border:1px solid #5c4a20;border-radius:6px;padding:13px 15px;font-size:13.5px;font-weight:600;color:#f0cf86;margin-bottom:8px;display:none;max-width:620px}
+.miss.show{display:block}
+.meta{background:var(--panel2);border:1px solid var(--line2);border-radius:6px;padding:12px 15px;margin:16px 0 14px;display:flex;flex-wrap:wrap;gap:6px 22px;align-items:center}
+.meta div{font-size:13.5px;font-weight:700}
+.meta div span{color:var(--mute);font-weight:550;margin-right:6px}
+#courts{display:grid;grid-template-columns:1fr;gap:12px}
+.court{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;min-width:0}
+.court>h2{margin:0;padding:12px 15px;background:#202821;border-bottom:1px solid var(--line);color:var(--text);font-size:15px;font-weight:800;display:flex;align-items:center;gap:10px;letter-spacing:-.01em}
+.court>h2 em{font:italic 850 16px/1 Archivo,sans-serif;background:var(--lime);color:var(--lime-ink);width:28px;height:28px;border-radius:4px;display:grid;place-items:center;flex:0 0 auto}
+.court>h2 i{font-style:normal;font-size:11.5px;font-weight:600;color:var(--mute);margin-left:auto;text-align:right}
+.slot{display:flex;align-items:center;gap:11px;padding:11px 15px;border-top:1px solid var(--line2)}
+.slot:first-of-type{border-top:0}
+.slot .tag{flex:0 0 80px;font-size:11.5px;font-weight:800;color:#fff;text-align:center;padding:5px 0;border-radius:4px;letter-spacing:-.03em;white-space:nowrap}
+.slot .who{font-size:16px;font-weight:800;letter-spacing:-.01em;min-width:0}
+.slot .who u{text-decoration:none;color:#5d675f;font-weight:600}
+.slot .side{font-size:11.5px;font-weight:650;color:var(--mute);margin-left:auto;flex:0 0 auto}
+.t1{background:#2f8a55}.t2{background:#4a6f3c}.t3{background:#2f6fbf}.t4{background:#b06e1f}.t5{background:#b2453a}.t6{background:#6b4fc9}
+.court.hq>h2{background:#231d3a;border-color:#3b3163}
+.court.hq>h2 em{background:#c9b8ff;color:#2d2258}
+.court.hq>h2 i{color:#b3a4e6}
+.slot.lit{background:var(--lime-tint)}
+.slot.lit .who{color:var(--lime)}
+.court.off{opacity:.55}
+.court.off>h2 em{background:#3a423c;color:#9aa49c}
+.note-wrap{margin:16px 0 0;max-width:620px}
+.nbtn{width:100%;padding:15px;border:1px solid var(--lime);border-radius:6px;background:transparent;color:var(--lime);font-size:15px;font-weight:800}
+.nbtn:hover{background:var(--lime-tint)}
+.nbox{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px 16px 14px}
+.nbox h3{margin:0 0 4px;font-size:16px;font-weight:850}
+.nbox .sub{font-size:13px;color:var(--mute);margin-bottom:12px;line-height:1.6}
+.nf{margin-bottom:11px}
+.nf label{display:block;font-size:13px;font-weight:750;margin-bottom:6px}
+.nf label em{font-style:normal;font-weight:500;color:var(--dim);font-size:12px;margin-left:5px}
+.nrow{display:flex;gap:8px}
+.nrow>div{flex:1;min-width:0}
+.nsend{width:100%;padding:14px;border:0;border-radius:6px;background:var(--lime);color:var(--lime-ink);font-size:15px;font-weight:850;margin-top:4px}
+.nsend:disabled{opacity:.45}
+.ncancel{width:100%;padding:11px;border:0;background:transparent;color:var(--dim);font-size:13.5px;font-weight:700}
+.ndone{background:var(--lime-tint);border:1px solid #4d6a2a;border-radius:var(--r);padding:18px 16px;text-align:center}
+.ndone b{display:block;font-size:16px;font-weight:850;margin-bottom:5px;color:var(--lime)}
+.ndone span{font-size:13px;color:#c9d6bf;line-height:1.6}
+.guide{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-top:20px}
+.guide h3{margin:0 0 14px;font-size:15px;font-weight:850}
+.guide .g{display:flex;gap:12px;align-items:flex-start;margin-bottom:10px}
+.guide .g:last-child{margin-bottom:0}
+.guide .g b{flex:0 0 80px;font-size:11.5px;font-weight:800;color:#fff;text-align:center;padding:4px 0;border-radius:4px;letter-spacing:-.03em;white-space:nowrap}
+.guide .g p{margin:1px 0 0;font-size:13.5px;line-height:1.6;color:#c2cbc2;min-width:0}
+.note b{color:var(--red)}
+.svlink{display:flex;align-items:center;justify-content:center;gap:6px 10px;flex-wrap:wrap;margin:16px 0 4px;padding:16px;border:1px solid var(--lime);border-radius:6px;color:var(--lime);font-size:15px;font-weight:800;text-align:center}
+.svlink:hover{background:var(--lime-tint)}
+.svlink span{font-size:12px;font-weight:650;color:var(--mute)}
+@media (min-width:820px){#courts{grid-template-columns:1fr 1fr;align-items:start}#courts .court.hq{grid-column:1/-1}.guide{display:grid;grid-template-columns:1fr 1fr;gap:10px 28px}.guide h3{grid-column:1/-1;margin-bottom:4px}.guide .g{margin:0}}
+@media (max-width:380px){.slot{gap:9px;padding:10px 12px}.slot .tag,.guide .g b{flex-basis:70px;font-size:11px}.slot .who{font-size:15px}}
+</style>
+
+<a class="skip" href="#main">본문 바로가기</a>
+<div class="top"><div class="in"><a class="brand" href="/" aria-label="RAS FUTSAL 메인으로"><i class="mark" aria-hidden="true"><b></b><b></b><b></b></i>RAS FUTSAL</a>
+<nav aria-label="바로가기"><a class="home" href="/#join">함께하기</a><a class="lv" href="/live"><i aria-hidden="true">◉</i>라이브 센터</a></nav></div></div>
+<header class="phd" id="main"><div class="in">
+  <div class="label"><i></i>REFEREE <em>/</em> 2026 RAS FESTA</div>
+  <h1>학생심판 배정표<span>.</span></h1>
+  <p>내 이름을 찾으면 배정된 날짜·구장·역할이 바로 나옵니다.</p>
+</div></header>
+
+<div class="dates"><div class="in" id="tabs"></div></div>
+
+<div class="wrap">
+  <div class="search">
+    <input id="q" type="search" placeholder="내 이름을 입력하세요" autocomplete="off" enterkeyhint="search">
+    <span class="ico">🔍</span>
+    <button class="clr" id="clr" aria-label="지우기">✕</button>
+  </div>
+  <div class="hit" id="hit"></div>
+  <div class="miss" id="miss">그 이름으로 배정된 자리가 없어요. 띄어쓰기 없이 다시 입력해 보세요.</div>
+
+  <div class="note-wrap" id="noteWrap"></div>
+
+  <div class="meta" id="meta"></div>
+  <div id="courts"></div>
+
+  <div class="guide">
+    <h3>역할 안내</h3>
+    <div class="g"><b class="t1">제1주심</b><p>경기를 주관합니다. 킥오프·득점·반칙 판정의 최종 권한을 가집니다.</p></div>
+    <div class="g"><b class="t2">제2주심</b><p>반대편 터치라인에서 봅니다. 제1주심과 대각선을 유지해 시야가 겹치지 않게 합니다.</p></div>
+    <div class="g"><b class="t3">기록원 · 계시원</b><p>득점·경고·교체를 기록하고 경기 시간을 관리합니다. 페어플레이 평가도 함께 체크합니다. (날짜에 따라 계시원으로 부릅니다)</p></div>
+    <div class="g"><b class="t4">볼리트리버</b><p>맡은 쪽 라인에서 아웃된 공을 바로 회수합니다. 경기가 끊기지 않게 하는 역할입니다.</p></div>
+    <div class="g"><b class="t5">체육교사</b><p>구장을 총괄합니다. 판정 분쟁 조정, 안전 관리, 학생심판 지도를 맡습니다.</p></div>
+    <div class="g"><b class="t6">기록 총괄</b><p>본부에서 네 구장의 점수를 모아 집계합니다. 각 구장 기록원이 넘긴 결과를 확인하고 순위표에 반영합니다.</p></div>
+    <div class="g"><b class="t6">풋살화 대여</b><p>본부에서 풋살화를 사이즈별로 지급하고, 경기가 끝나면 그 자리에서 회수합니다. 대여 명단에 지급·반납을 표시합니다.</p></div>
+  </div>
+
+  <p class="note">
+    경기 시작 <b>30분 전</b>까지 배정된 구장으로 모여 주세요.<br>
+    사정이 생겨 못 오게 되면 <b>반드시 미리</b> 체육 선생님께 알려 주세요.
+  </p>
+
+  <a class="svlink" href="/survey">만족도 설문 참여하기 <span>2~3분이면 끝납니다 →</span></a>
+
+  <footer>안산교육지원청 · 안산학교체육지원단</footer>
+</div>
+
+<script>
+/* ═══ 배정 데이터 : 이 부분만 고치면 됩니다 ═══ */
+const DATA = {
+  "10/19": {
+    label:"10/19(월)", full:"10월 19일 (월)", div:"중등부 남자", time:"17:30 ~ 19:05",
+    hq:[ { role:"기록 총괄", name:"정한솔", note:"전체 구장 점수 집계" } ],
+    courts:{
+      A:{ r1:"손윤서", r2:"이동현", rec:"정시현", ball:["이준서","조한결"], tch:["홍의헌","송준규"] },
+      B:{ r1:["김준서 (1·3경기)","심민규 (2경기)"], r2:"강재호", rec:"류수미",
+          ball:["이하율","구다혜"], tch:["최윤호","김세빈"] },
+      C:{ r1:"할리옹", r2:["심민규 (1경기)","유정훈 (2경기)"], rec:"나스티아",
+          ball:["채바딤","최예빈"], tch:["이병현","최승희"] },
+      D:null
+    }
+  },
+  "10/21": {
+    label:"10/21(수)", full:"10월 21일 (수)", div:"중등부 여자", time:"17:30 ~ 19:05",
+    labels:{ rec:"계시원" },
+    hq:[
+      { role:"풋살화 대여", name:"최예빈", note:"지급 · 반납 확인" },
+      { role:"풋살화 대여", name:"김혜원", note:"지급 · 반납 확인" },
+      { role:"풋살화 대여", name:"강재호", note:"지급 · 반납 확인" },
+      { role:"풋살화 대여", name:"이주아", note:"지급 · 반납 확인" }
+    ],
+    courts:{
+      A:{ r1:"유정훈", r2:"심민규", rec:"류수미", ball:["이하율","채바딤"], tch:["홍의헌","최승희"] },
+      B:{ r1:"손윤서", r2:"정시현", rec:"장하연", ball:["경태율","주민재"], tch:["최윤호","박성민"] },
+      C:{ r1:"김준서", r2:"이준서", rec:"구다혜", ball:["이동현","조한결"], tch:["송준규","정한솔"] },
+      D:null
+    }
+  },
+  "10/26": {
+    label:"10/26(월)", full:"10월 26일 (월)", div:"중등부 남자", time:"17:30 ~ 19:05",
+    labels:{ rec:"계시원" },
+    courts:{
+      A:{ r1:"할리옹", r2:"강재호", rec:"최예빈", ball:["조한결","장하연"], tch:["송준규","최승희"] },
+      B:{ r1:"이동현", r2:"손윤서", rec:"이주아", ball:["채바딤","김혜원"], tch:["이병현","정한솔"] },
+      C:{ r1:"심민규", r2:"정시현", rec:"류수미", ball:["이하율","구다혜"], tch:["박성민","김세빈"] },
+      D:null
+    }
+  },
+  "11/6": {
+    label:"11/6(금)", full:"11월 6일 (금)", div:"고등부 남자", time:"18:00 ~ 20:21",
+    labels:{ rec:"계시원" },
+    courts:{
+      A:{ r1:"이담",   r2:"할리옹", rec:"김혜원",   ball:["경태율"], tch:["홍의헌","김세빈"] },
+      B:{ r1:"이준",   r2:"이동현", rec:"이주아",   ball:["장하연"], tch:["최윤호"] },
+      C:{ r1:"현우주", r2:"김준서", rec:"채바딤",   ball:["강재호"], tch:["이병현","정은영"] },
+      D:{ r1:"윤하율", r2:"유정훈", rec:"나스티아", ball:["최예빈"], tch:["박성민","최승희"] }
+    }
+  },
+  "11/14": {
+    label:"11/14(토)", full:"11월 14일 (토)", div:"중등부 · 고등부", time:"08:30 ~ 14:19",
+    labels:{ rec:"계시원" },
+    courts:{
+      A:{ r1:"손윤서", r2:"채바딤", rec:"나스티아", ball:["조한결","장하연"], tch:["홍의헌","최승희"], sub:["이준","진승연"] },
+      B:{ r1:"심민규", r2:"강재호", rec:"류수미",   ball:["이주아","주민재"], tch:["이병현"],          sub:["이담","임승민"] },
+      C:{ r1:"이동현", r2:"이준서", rec:"김혜원",   ball:["구다혜"],          tch:["박성민"],          sub:["윤하율"] },
+      D:{ r1:["김준서","유정훈"], r2:"정시현", rec:"최예빈", ball:["이하율"],     tch:["정한솔","김세빈"], sub:["현우주"] }
+    }
+  },
+  "11/21":{ label:"11/21(토)", soon:true }
+};
+/* ════════════════════════════════════════════ */
+
+/* 구장에 실제로 들어 있는 항목만 줄로 만듭니다.
+   체육교사가 1명이면 1줄, 볼리트리버가 3명이면 3줄로 자동 조정됩니다. */
+const SIDES = ["제1주심 쪽", "제2주심 쪽"];
+const SUBS  = ["제1주심", "제2주심"];
+const arr = v => v == null ? [] : (Array.isArray(v) ? v : [v]);
+
+const ROLES = [
+  ["제1주심",   "t1", "r1",   c => { const a = arr(c.r1);
+      return a.map(n => [n, a.length > 1 ? "교대" : ""]); }],
+  ["제2주심",   "t2", "r2",   c => { const a = arr(c.r2);
+      return a.map(n => [n, a.length > 1 ? "교대" : ""]); }],
+  ["기록원",    "t3", "rec",  c => arr(c.rec).map(n => [n, ""])],
+  ["볼리트리버","t4", "ball", c => arr(c.ball).map(n => [n, ""])],
+  ["체육교사",  "t5", "tch",  c => { const a = arr(c.tch);
+      return a.map((n, i) => [n, a.length > 1 ? (SIDES[i] || "") : ""]); }],
+  ["주심 교체",  "t6", "sub",  c => { const a = arr(c.sub);
+      return a.map((n, i) => [n, SUBS[i] || ""]); }]
+];
+/* 날짜별로 역할 이름을 바꿀 수 있습니다 (예: 기록원 → 계시원) */
+const roleName = (d, key, dflt) => (d && d.labels && d.labels[key]) || dflt;
+
+const countSlots = c => ROLES.reduce((s, [, , , pick]) => s + pick(c).length, 0);
+
+let cur = "10/19";
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const norm = s => String(s||"").replace(/\s+/g,"");
+
+function tabs(){
+  $("#tabs").innerHTML = Object.entries(DATA).map(([k,v]) =>
+    `<button data-k="${k}" class="${k===cur?'on':''}" ${v.soon?'disabled':''}>${v.label}${v.soon?' 준비중':''}</button>`
+  ).join("");
+  $("#tabs").querySelectorAll("button").forEach(b =>
+    b.onclick = () => { cur = b.dataset.k; tabs(); render(); run(); });
+}
+
+function slot(cls, role, name, side){
+  return `<div class="slot" data-n="${name?esc(name):''}">
+    <span class="tag ${cls}">${role}</span>
+    <span class="who">${name ? esc(name) : '<u>미정</u>'}</span>
+    ${side ? `<span class="side">${side}</span>` : ''}
+  </div>`;
+}
+
+function render(){
+  const d = DATA[cur];
+  $("#meta").innerHTML =
+    `<div><span>날짜</span>${d.full}</div><div><span>부문</span>${d.div}</div><div><span>시간</span>${d.time}</div>`;
+
+  const hq = (d.hq && d.hq.length)
+    ? `<section class="court hq"><h2><em>본</em>본부<i>${d.hq.length}명</i></h2>` +
+      d.hq.map(h => `<div class="slot" data-n="${esc(h.name)}">
+        <span class="tag t6">${esc(h.role)}</span>
+        <span class="who">${esc(h.name)}</span>
+        ${h.note ? `<span class="side">${esc(h.note)}</span>` : ''}
+      </div>`).join("") + `</section>`
+    : "";
+
+  $("#courts").innerHTML = hq + Object.entries(d.courts).map(([ct, c]) => {
+    if(!c) return `<section class="court off"><h2><em>${ct}</em>${ct}구장<i>이 날은 사용하지 않습니다</i></h2></section>`;
+    const rows = ROLES.map(([role, cls, key, pick]) =>
+      pick(c).map(([nm, side]) => slot(cls, roleName(d, key, role), nm, side)).join("")).join("");
+    return `<section class="court"><h2><em>${ct}</em>${ct}구장<i>${countSlots(c)}명</i></h2>${rows}</section>`;
+  }).join("");
+}
+
+function run(){
+  const q = norm($("#q").value);
+  $("#clr").classList.toggle("show", !!q);
+  document.querySelectorAll(".slot.lit").forEach(e => e.classList.remove("lit"));
+
+  if(!q){ $("#hit").classList.remove("show"); $("#miss").classList.remove("show");
+          noteName = ""; noteOpen = false; noteArea(); return; }
+
+  const found = [];
+  Object.values(DATA).forEach(d => {
+    if(d.soon || !d.courts) return;
+    (d.hq || []).forEach(h => {
+      if(norm(h.name).includes(q))
+        found.push({ date:d.full, ct:"본부", role:h.role, side:h.note, name:h.name });
+    });
+    Object.entries(d.courts).forEach(([ct, c]) => {
+      if(!c) return;
+      ROLES.forEach(([role, , key, pick]) => pick(c).forEach(([nm, side]) => {
+        if(nm && norm(nm).includes(q))
+          found.push({ date:d.full, ct, role:roleName(d, key, role), side, name:nm });
+      }));
+    });
+  });
+
+  if(!found.length){
+    $("#hit").classList.remove("show");
+    $("#miss").classList.add("show");
+    noteName = ""; noteOpen = false; noteArea();
+    return;
+  }
+  $("#miss").classList.remove("show");
+  $("#hit").classList.add("show");
+  $("#hit").innerHTML =
+    `<div class="nm">${esc(found[0].name)}<small>님의 배정</small></div>
+     <div class="rows">${found.map(f =>
+       `<div class="row"><span class="ct">${f.ct === "본부" ? "본부" : f.ct + "구장"}</span><b>${f.role}</b>
+        <em>${f.date}${f.side ? ' · ' + f.side : ''}</em></div>`).join("")}</div>`;
+
+  noteName = found[0].name;
+  noteRole = found.map(f => `${f.date} ${f.ct === "본부" ? "본부" : f.ct + "구장"} ${f.role}`).join(" / ");
+  noteArea();
+
+  document.querySelectorAll(".slot").forEach(s => {
+    if(s.dataset.n && norm(s.dataset.n).includes(q)) s.classList.add("lit");
+  });
+}
+
+/* ═══ 학생심판 활동 소감 ═══ */
+const NQ = [
+  ["good",  "좋았던 점",     "잘 해냈다고 느낀 순간, 뿌듯했던 장면"],
+  ["hard",  "어려웠던 점",   "판정이 망설여졌거나 곤란했던 상황"],
+  ["learn", "새로 배운 점",  "다음에는 이렇게 해야겠다고 생각한 것"],
+  ["more",  "하고 싶은 말",  "운영에 바라는 점 · 자유롭게 (선택)"]
+];
+let noteOpen = false, noteName = "", noteRole = "";
+
+function noteArea(){
+  const w = $("#noteWrap");
+  if(!noteName){ w.innerHTML = ""; return; }
+  if(!noteOpen){
+    w.innerHTML = `<button class="nbtn" id="nOpen">✏️ ${esc(noteName)}님, 오늘 활동 소감 남기기</button>`;
+    $("#nOpen").onclick = () => { noteOpen = true; noteArea(); };
+    return;
+  }
+  w.innerHTML = `
+  <div class="nbox">
+    <h3>활동 소감</h3>
+    <div class="sub">짧게 한두 줄이어도 좋습니다. 적어 준 내용은 다음 대회 운영과
+      학생심판 안내서를 만드는 데 쓰입니다.</div>
+    <div class="nrow">
+      <div class="nf"><label>이름</label><input id="nName" value="${esc(noteName)}"></div>
+      <div class="nf"><label>활동한 날</label><select id="nDate">${
+        Object.entries(DATA).filter(([,v]) => !v.soon)
+          .map(([k,v]) => `<option value="${k}"${k===cur?' selected':''}>${v.label}</option>`).join("")
+      }</select></div>
+    </div>
+    ${NQ.map(([k,t,h]) => `<div class="nf">
+      <label>${t}<em>${h}</em></label>
+      <textarea id="n_${k}" placeholder=""></textarea></div>`).join("")}
+    <button class="nsend" id="nSend">보내기</button>
+    <button class="ncancel" id="nCancel">닫기</button>
+  </div>`;
+  $("#nCancel").onclick = () => { noteOpen = false; noteArea(); };
+  $("#nSend").onclick = async () => {
+    const btn = $("#nSend");
+    const val = k => ($("#n_" + k).value || "").trim();
+    const body = {
+      type: "ref", request: true,
+      id: "N" + Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+      value: {
+        kind: "note", name: ($("#nName").value || "").trim(),
+        date: $("#nDate").value, role: noteRole,
+        good: val("good"), hard: val("hard"), learn: val("learn"), more: val("more")
+      }
+    };
+    if(!body.value.name) return alert("이름을 적어 주세요.");
+    if(!body.value.good && !body.value.hard && !body.value.learn && !body.value.more)
+      return alert("한 칸이라도 적어 주세요.");
+    btn.disabled = true; btn.textContent = "보내는 중…";
+    try{
+      const r = await fetch("/api/data", { method:"POST",
+        headers:{ "Content-Type":"application/json" }, body: JSON.stringify(body) });
+      const j = await r.json();
+      if(!j.ok) throw new Error(j.msg || "fail");
+      $("#noteWrap").innerHTML = `<div class="ndone"><b>잘 받았습니다. 고마워요!</b>
+        <span>적어 준 이야기는 선생님들이 모두 읽습니다.<br>다음 경기 때 또 들려주세요.</span></div>`;
+      noteOpen = false;
+    }catch(e){
+      btn.disabled = false; btn.textContent = "보내기";
+      alert("보내지 못했습니다. 잠시 뒤 다시 눌러 주세요.");
+    }
+  };
+}
+
+$("#q").addEventListener("input", run);
+$("#clr").onclick = () => { $("#q").value = ""; $("#q").focus(); run(); };
+
+tabs(); render();
+</script>
+</html>
