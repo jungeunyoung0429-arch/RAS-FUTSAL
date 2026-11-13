@@ -14,3 +14,21 @@ dialog{color:var(--paper);background:var(--ink);border:1px solid #4e5b4e;border-
 .day-cer{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:#d5dcd6}.day-cer li{display:inline-flex;gap:8px;align-items:baseline}.day-cer i{font:italic 700 13px Archivo,Pre,sans-serif;color:var(--lime);font-variant-numeric:tabular-nums}
 .day-heed{margin:0;padding:10px 13px;border-left:3px solid var(--lime);background:#161b18;font-size:12.5px;line-height:1.6;color:var(--muted)}.day-heed b{color:var(--paper);font-weight:700}
 .day-wo{display:grid;gap:4px;padding:11px 13px;border:1px solid #4a2f2b;border-left:3px solid #ff7a66;background:#1d1715;font-size:13px}.day-wo>b{color:#ff9d8c;font-size:12.5px;font-weight:750;margin-bottom:2px}.day-wo span{display:flex;gap:8px;align-items:baseline;color:#e6ebe6;font-weight:650;font-variant-numeric:tabular-nums}.day-wo span i{margin-left:auto;font-style:normal;font-size:11.5px;color:#ff9d8c;white-space:nowrap}.day-wo small{color:var(--muted);font-size:11.5px;margin-top:3px}
+
+.courts{padding-block:22px 6px}
+.courts-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:12px}
+.courts-head h2{margin:0;font-size:18px;font-weight:800}
+.courts-head h2 span{color:var(--lime);font:italic 700 14px Archivo,sans-serif;margin-left:6px}
+.court-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.court-tile{display:grid;gap:4px;padding:12px;border:1px solid var(--line);border-radius:7px;background:var(--panel);color:inherit;text-decoration:none;min-width:0}
+.court-tile.on{border-color:var(--lime)}
+.ct-head{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted)}
+.ct-head b{font:italic 900 22px/1 Archivo,sans-serif;color:var(--lime)}
+.ct-head time{margin-left:auto;color:var(--paper);font:700 13px Archivo,sans-serif}
+.court-tile.on .ct-head span{color:var(--lime)}
+.ct-team{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ct-score{font:italic 800 13px Archivo,sans-serif;color:var(--muted)}
+.court-tile.on .ct-score{color:var(--lime);font-size:18px}
+.ct-foot{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:760px){.court-grid{grid-template-columns:repeat(2,1fr);gap:8px}.court-tile{padding:10px}.ct-team{font-size:14px}}
+@media(max-width:580px){.field{min-height:330px;padding:24px 0 20px}.courts{padding-top:16px}}

@@ -93,3 +93,33 @@ $('[data-venue]').onclick=()=>{location.hash='venue'};
 showDayInfo();
 showCards();
 chooseCourt('A');
+/* 메인 상단 A~D 구장 보드: 진행 중 → 다음 경기 → 마지막 경기 순으로 구장마다 한 경기 */
+const kstFmt = new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Seoul',year:'numeric',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hourCycle:'h23'});
+const toMin = s => { const [h,m] = s.split(':').map(Number); return h*60+m; };
+const md = d => { const [m,n] = d.split('/').map(Number); return m*100+n; };
+let liveScores = {};
+function showCourts() {
+  const p = Object.fromEntries(kstFmt.formatToParts(new Date()).map(x => [x.type,x.value]));
+  const today = md(Number(p.month)+'/'+Number(p.day)), mins = Number(p.hour)*60+Number(p.minute), year = Number(p.year);
+  const day = year > 2026 ? dates.at(-1) : dates.find(d => md(d) >= today) || dates.at(-1);
+  const isToday = year === 2026 && md(day) === today;
+  $('#courts-day').textContent = allDay(day);
+  $('#court-grid').innerHTML = venueNames.map((name, i) => {
+    const list = sortedMatches.filter(m => m.date === day && m.court === i+1);
+    if (!list.length) return `<a class="court-tile" href="/live.html"><span class="ct-head"><b>${name}</b><span>경기 없음</span></span></a>`;
+    const live = isToday && list.find(m => { const [s,e] = m.time.split('~').map(toMin); return mins >= s && mins < e; });
+    const next = list.find(m => !isToday || toMin(m.time.split('~')[1]) > mins);
+    const m = live || next || list.at(-1);
+    const after = list[list.indexOf(m)+1];
+    const sc = liveScores[m.id];
+    const label = live ? '경기 중' : next ? (isToday ? '다음 경기' : '첫 경기') : '종료';
+    return `<a class="court-tile${live?' on':''}" href="/live.html" aria-label="${name}구장 ${label} ${m.t1} 대 ${m.t2}"><span class="ct-head"><b>${name}</b><span>${label}</span><time>${kick(m)}</time></span><span class="ct-team">${m.t1}</span><span class="ct-score">${sc ? sc[0]+' : '+sc[1] : 'VS'}</span><span class="ct-team">${m.t2}</span><span class="ct-foot">${divisionNames[m.div]}${after ? ' · 다음 '+kick(after) : ''}</span></a>`;
+  }).join('');
+}
+async function loadScores() {
+  if (location.protocol === 'file:' || document.hidden) return;
+  try { const r = await fetch('/api/live',{cache:'no-store'}); if (r.ok) liveScores = (await r.json()).scores || {}; } catch {}
+  showCourts();
+}
+showCourts(); loadScores(); setInterval(loadScores, 30000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) loadScores(); });
