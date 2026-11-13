@@ -55,6 +55,25 @@ h1 em{font-style:normal;color:var(--accent)}
 .warn{margin-top:16px;padding:12px 14px;border-radius:12px;background:rgba(240,168,74,.09);
   border:1px solid rgba(240,168,74,.3);font-size:12.5px;line-height:1.65;color:#E8C48E}
 a.back{display:inline-block;margin-top:24px;font-size:13px;color:var(--mute);text-decoration:none}
+.wsep{display:flex;align-items:center;gap:10px;margin:7px 2px 1px;font-size:11.5px;
+  font-weight:700;color:var(--warm);letter-spacing:.02em}
+.wsep::before,.wsep::after{content:"";height:1px;background:var(--line);flex:1}
+.wsep span{white-space:nowrap}
+.opt.wd{border-color:rgba(240,168,74,.32);background:#1C1A15}
+.opt.wd.on{border-color:var(--warm);background:#241E14;box-shadow:inset 0 0 0 1px var(--warm)}
+.opt.wd.on b{color:var(--warm)}
+.wnote{margin:3px 2px 0;font-size:11.5px;line-height:1.6;color:var(--mute)}
+.wnote b{color:#E8C48E}
+.wdbox{margin-top:16px;padding:14px 15px;border:1px solid rgba(240,168,74,.3);
+  border-radius:13px;background:rgba(240,168,74,.07)}
+.wdhead{font-size:12px;font-weight:800;letter-spacing:.06em;color:var(--warm);margin-bottom:10px}
+.wdrow{margin-bottom:11px}
+.wdrow>b{display:block;font-size:13.5px;margin-bottom:7px;color:#E8C48E}
+.wdlist{display:flex;flex-wrap:wrap;gap:6px}
+.wdlist span{display:inline-flex;align-items:baseline;gap:6px;padding:6px 10px;border-radius:8px;
+  background:var(--card);border:1px solid var(--line);font-size:13px;font-weight:700}
+.wdlist i{font-style:normal;font-size:11.5px;font-weight:600;color:var(--mute)}
+.wdbox small{display:block;margin-top:4px;font-size:11.5px;line-height:1.6;color:var(--mute)}
 </style>
 </head>
 <body>
@@ -67,6 +86,12 @@ const OPTS = [
   ["pk",    "승부차기를 한다",            "오늘 경기를 승부차기로 가립니다. 오늘 안에 결과가 나오고 다음 주 일정은 그대로입니다."],
   ["delay", "다음 주로 미룬다",           "오늘은 돌아가고 11월 21일에 몰아서 합니다. 그날 하루에 7~8경기를 뛰게 되고 오후 3시 가까이 끝납니다."]
 ];
+/* 기권은 다수결 대상이 아니라 학교별 의사라서 따로 모읍니다 */
+const WOPTS = [
+  ["wd_today", "오늘 경기 기권을 희망한다",   "오늘 남은 우리 학교 경기를 치르지 않습니다. 다음 주 경기는 그대로 나옵니다."],
+  ["wd_all",   "남은 경기 기권을 희망한다",   "오늘과 다음 주 경기를 모두 치르지 않습니다. 순위에서 빠집니다."]
+];
+const WDKEYS = WOPTS.map(o => o[0]);
 /* 11월 14일 07:00 전에는 열리지 않습니다 (미리 올려둬도 아무도 못 봅니다) */
 const OPEN_AT = new Date("2026-11-14T07:00:00+09:00");
 const $ = s => document.querySelector(s);
@@ -75,7 +100,7 @@ const KEY = "ras_vote_" + TOPIC;
 const seen = () => { try { return localStorage.getItem(KEY); } catch(e) { return null; } };
 const mark = () => { try { localStorage.setItem(KEY, "1"); } catch(e) {} };
 
-const F = { school:"", choice:"", n:1 };
+const F = { school:"", choice:"" };   /* 휴대폰 한 대 = 1표 */
 const Q = new URLSearchParams(location.search);
 const early = Date.now() < OPEN_AT.getTime() && !Q.has("preview") && !Q.has("r");   /* 집계 화면(?r=1)은 언제든 열립니다 */
 let view = early ? "soon" : (Q.has("r") ? "res" : (seen() ? "done" : "form"));
@@ -85,13 +110,20 @@ async function load(){
   try{
     const r = await fetch("/api/data?cb=" + Date.now());
     const d = await r.json();
-    const t = { wet:0, pk:0, delay:0, schools:new Set(), people:0 };
+    const t = { wet:0, pk:0, delay:0, schools:new Set(), people:0,
+                wd:{ wd_today:new Map(), wd_all:new Map() }, wdn:0 };
     Object.values(d.refs || {}).forEach(v => {
       if(!v || v.kind !== "vote" || v.topic !== TOPIC) return;
       const n = Math.max(1, Math.min(9, +v.n || 1));
+      if(v.school) t.schools.add(v.school);
+      if(WDKEYS.indexOf(v.choice) >= 0){           /* 기권 희망 — 학교별로 모음 */
+        const m = t.wd[v.choice];
+        const k = v.school || "(학교 미기재)";
+        m.set(k, (m.get(k) || 0) + n); t.wdn += n;
+        return;
+      }
       if(t[v.choice] === undefined) return;
       t[v.choice] += n; t.people += n;
-      if(v.school) t.schools.add(v.school);
     });
     tally = t;
   }catch(e){ tally = null; }
@@ -113,20 +145,19 @@ function renderForm(){
      `<button data-s="${esc(n)}"${F.school===n?' class="on"':''}>${esc(n)}</button>`).join("")}</div>
    <div class="step"><b>2</b> &nbsp;어떻게 하면 좋을까요</div>
    <div class="opts" id="op">${OPTS.map(([k,t,d]) =>
-     `<button class="opt${F.choice===k?' on':''}" data-o="${k}"><b>${t}</b><span>${d}</span></button>`).join("")}</div>
-   <div class="n">
-     <span>이 휴대폰으로 함께 투표하는 인원<br>(휴대폰이 없는 친구가 있으면 늘려 주세요)</span>
-     <button id="mi">−</button><i id="nv">${F.n}</i><button id="pl">＋</button>
+     `<button class="opt${F.choice===k?' on':''}" data-o="${k}"><b>${t}</b><span>${d}</span></button>`).join("")}
+     <div class="wsep"><span>또는, 우리 학교는 기권을 희망합니다</span></div>
+     ${WOPTS.map(([k,t,d]) =>
+     `<button class="opt wd${F.choice===k?' on':''}" data-o="${k}"><b>${t}</b><span>${d}</span></button>`).join("")}
+     <p class="wnote">기권은 학교가 정하는 일입니다. <b>지도교사 선생님과 이야기한 뒤에만</b> 골라 주세요.</p>
    </div>
    <button class="go" id="go"${F.school && F.choice ? "" : " disabled"}>투표하기</button>
-   <p class="hint">한 번만 투표할 수 있습니다.</p>`;
+   <p class="hint">휴대폰 한 대당 한 번만 투표할 수 있습니다.</p>`;
 
   $("#sc").onclick = e => { const b = e.target.closest("button"); if(!b) return;
     F.school = b.dataset.s; renderForm(); };
   $("#op").onclick = e => { const b = e.target.closest("button"); if(!b) return;
     F.choice = b.dataset.o; renderForm(); };
-  $("#mi").onclick = () => { F.n = Math.max(1, F.n - 1); $("#nv").textContent = F.n; };
-  $("#pl").onclick = () => { F.n = Math.min(9, F.n + 1); $("#nv").textContent = F.n; };
   $("#go").onclick = send;
 }
 
@@ -135,7 +166,7 @@ async function send(){
   const body = { type:"ref", request:true,
     id: "V" + Date.now().toString(36) + Math.random().toString(36).slice(2,6),
     value: { kind:"vote", topic:TOPIC, school:F.school,
-             div:(SCHOOLS[F.school]||[])[0]||"", choice:F.choice, n:F.n } };
+             div:(SCHOOLS[F.school]||[])[0]||"", choice:F.choice, n:1 } };
   try{
     const r = await fetch("/api/data", { method:"POST",
       headers:{ "Content-Type":"application/json" }, body: JSON.stringify(body) });
@@ -154,7 +185,21 @@ function bars(){
   return `<div class="res">${OPTS.map(([k,t]) => `
     <div class="bar"><div class="t"><span>${t}</span><em>${tally[k]}표</em></div>
       <div class="g"><i style="width:${Math.round(tally[k]/max*100)}%"></i></div></div>`).join("")}
-    </div><p class="tot">${tally.people}명 참여 · ${tally.schools.size}개교</p>`;
+    </div><p class="tot">${tally.people}명 참여 · ${tally.schools.size}개교</p>${wdBlock()}`;
+}
+
+/* 기권 희망은 표가 아니라 「어느 학교가 빠지는지」로 보여 줍니다 */
+function wdBlock(){
+  if(!tally || !tally.wdn) return "";
+  const rows = WOPTS.map(([k,t]) => {
+    const m = tally.wd[k];
+    if(!m.size) return "";
+    const list = [...m.entries()].sort((a,b) => b[1]-a[1] || a[0].localeCompare(b[0]))
+      .map(([s,c]) => `<span>${esc(s)}<i>${c}명</i></span>`).join("");
+    return `<div class="wdrow"><b>${t}</b><div class="wdlist">${list}</div></div>`;
+  }).join("");
+  return `<div class="wdbox"><div class="wdhead">기권 희망 — 학교별</div>${rows}
+    <small>다수결에 포함하지 않습니다. 해당 학교 지도교사에게 직접 확인하세요.</small></div>`;
 }
 
 function renderDone(){
