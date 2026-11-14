@@ -10,7 +10,7 @@ export function shape(raw) {
   const rawLogs = src.logs || {};
   // 기권(몰수) 경기 보정은 live.js 의 forfeit 표에서 한다.
 
-  const scores = {}, goals = {}, streams = {}, courts = {};
+  const scores = {}, goals = {}, streams = {}, courts = {}, mvps = {};
   for (const [id, pair] of Object.entries(rawScores)) {
     if (/^M\d+$/.test(id) && Array.isArray(pair) && pair.length === 2 &&
         pair.every(n => n !== null && n !== "" && Number.isInteger(Number(n)) && Number(n) >= 0)) {
@@ -18,10 +18,19 @@ export function shape(raw) {
     }
   }
   for (const [id, log] of Object.entries(rawLogs)) {
-    if (!/^M\d+$/.test(id) || !Array.isArray(log?.goals)) continue;
-    goals[id] = log.goals
-      .filter(g => g && (g.t === 1 || g.t === 2))
-      .map(g => ({ t: g.t, name: String(g.name ?? "").slice(0, 80), min: String(g.min ?? "").slice(0, 9) }));
+    if (!/^M\d+$/.test(id)) continue;
+    if (Array.isArray(log?.goals)) {
+      goals[id] = log.goals
+        .filter(g => g && (g.t === 1 || g.t === 2))
+        .map(g => ({ t: g.t, name: String(g.name ?? "").slice(0, 80), min: String(g.min ?? "").slice(0, 9) }));
+    }
+    // MVP — 이름과 소속 팀만 내보낸다
+    const mv = log && log.mvp;
+    if (mv && typeof mv === "object") {
+      const name = String(mv.name ?? "").trim().slice(0, 40);
+      const team = String(mv.team ?? "").trim().slice(0, 30);
+      if (name) mvps[id] = { name, team };
+    }
   }
   for (const [key, val] of Object.entries(src.days || {})) {
     if (!/^\d{1,2}\/\d{1,2}\|_live$/.test(key) || !val) continue;
@@ -43,7 +52,7 @@ export function shape(raw) {
     else if (typeof val.u === "string" && /^https:\/\/(www\.)?youtube\.com\/(@[^\/\s?#"<>]{1,100}|channel\/[\w-]{1,40})\/live$/.test(val.u)) link = { url: val.u };
     if (link) (courts[m[1]] ||= {})[m[2]] = link;
   }
-  return { scores, goals, streams, courts, updated: new Date().toISOString() };
+  return { scores, goals, mvps, streams, courts, updated: new Date().toISOString() };
 }
 
 export default async function handler(req, res) {

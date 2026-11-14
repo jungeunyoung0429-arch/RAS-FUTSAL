@@ -31,11 +31,24 @@ function normalize(record){
   }
   return record;
 }
+/* 오늘 경기는 시간표보다 실제 진행(입력된 결과)을 따른다 — 현장이 밀리거나 당겨져도 보드가 맞게 보인다.
+   구장의 「마지막으로 결과가 들어온 경기」 바로 다음 경기가 지금 경기, 그 뒤는 경기 전, 그 앞인데 결과가 없으면 결과 대기. */
+function progress(m){
+  const list=matches.filter(x=>x.date===m.date&&x.court===m.court&&!x.wo).sort((a,b)=>minutes(kickoff(a))-minutes(kickoff(b)));
+  let last=-1;list.forEach((x,i)=>{if(data.scores[x.id])last=i});
+  return {i:list.findIndex(x=>x.id===m.id),last};
+}
 function state(m,t){
   const diff=t.year===2026?numericDate(m.date)-numericDate(t.day):2026-t.year;
   const [start,end]=m.time.split('~').map(minutes);
-  if(!diff&&t.minutes>=start&&t.minutes<end)return ['active','경기 시간'];
   if(data?.scores[m.id])return ['done','결과'];
+  if(!diff&&data){
+    const {i,last}=progress(m);
+    if(i<last)return ['pending','결과 대기'];
+    if(i===last+1&&(last>=0||t.minutes>=start-20))return ['active','진행 중'];
+    return ['soon','경기 전'];
+  }
+  if(!diff&&t.minutes>=start&&t.minutes<end)return ['active','경기 시간'];
   if(diff<0||(!diff&&t.minutes>=end))return ['pending',data?'결과 대기':filePreview?'결과 미연결':'기록 확인 중'];
   return ['soon','경기 전'];
 }
