@@ -167,7 +167,16 @@ const WOSCORE = (() => {
   }
   return s;
 })();
-const allScores = () => Object.assign({}, WOSCORE, (LIVE && LIVE.scores) || {});
+/* 신길고·고잔고 몰수는 치른 경기(11/6 M030·M112·M132)까지 1:0 으로 — 라이브 센터(live.js normalize)와 같은 계산 */
+const allScores = () => {
+  const s = Object.assign({}, WOSCORE, (LIVE && LIVE.scores) || {});
+  for (const [id, lose] of Object.entries(FORFEIT)) {
+    const m = matches.find(x => x.id === id); if (!m) continue;
+    const side = m.t1 === lose ? 0 : 1, p = (s[id] || [0,0]).slice();
+    p[side] = 0; p[1-side] = Math.max(+p[1-side], 1); s[id] = p;
+  }
+  return s;
+};
 const mvpOf = id => (LIVE && LIVE.mvps && LIVE.mvps[id]) || null;
 const goalsOf = id => (LIVE && LIVE.goals && LIVE.goals[id]) || null;
 
