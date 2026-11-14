@@ -26,3 +26,102 @@ dialog{color:var(--paper);background:var(--ink);border:1px solid #4e5b4e;border-
 .join-card.staff b i{display:inline-block;margin-left:7px;font-style:normal;font-size:10.5px;
   font-weight:700;letter-spacing:.04em;color:#0E1210;background:#9AA0A8;padding:2px 7px;border-radius:999px;vertical-align:middle}
 .join-card.staff:hover,.join-card.staff:focus-visible{border-color:#9AA0A8}
+
+/* ── 슬롯(몇 번째 경기) 단위 보기 ── */
+.slotline{display:flex;align-items:baseline;gap:12px;padding:3px 2px 2px}
+.slotline b{font-size:21px;letter-spacing:-.01em;color:var(--accent,#C8F046)}
+.slotline span{font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}
+.slotline i{margin-left:auto;font-style:normal;font-size:12px;color:rgba(255,255,255,.5)}
+.match-card.slim{padding:13px 15px;gap:9px}
+.match-card.slim .pair{font-size:21px}
+.match-card.slim .pair i{font-size:12px}
+.match-card.slim .card-top{font-size:11px}
+.match-card.slim.free{opacity:.5;border-style:dashed;cursor:default}
+.match-card.slim.free .pair{font-size:12.5px;font-weight:600;color:rgba(255,255,255,.55);display:block}
+
+/* 우천 투표 카드 — 지금 진행 중인 투표를 맨 앞에서 강조 */
+.join-card.vote{background:linear-gradient(125deg,#C8F046,#A8D633);border-color:#C8F046;color:#14180F}
+.join-card.vote small{color:#3C4A16;font-weight:800;letter-spacing:.09em}
+.join-card.vote b{color:#14180F}
+.join-card.vote span{color:#14180F}
+.join-card.vote::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  box-shadow:0 0 0 0 rgba(200,240,70,.55);animation:votePulse 1.9s ease-out infinite}
+.join-card.vote:hover,.join-card.vote:focus-visible{border-color:#fff;filter:brightness(1.04)}
+@keyframes votePulse{0%{box-shadow:0 0 0 0 rgba(200,240,70,.55)}
+  70%{box-shadow:0 0 0 14px rgba(200,240,70,0)}100%{box-shadow:0 0 0 0 rgba(200,240,70,0)}}
+@media (prefers-reduced-motion:reduce){.join-card.vote::after{animation:none}}
+
+/* ── 카드 위 실시간 점수 ─────────────────────────── */
+.match-card.done{border-color:#6f8a52;background:linear-gradient(125deg,#232d20,#1a2019)}
+.pair i.sc{font:italic 800 clamp(19px,2vw,27px)/1 Archivo,sans-serif;color:var(--lime);
+  letter-spacing:-.5px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.pair i.sc em{font-style:normal;margin:0 5px;color:#7d8c77;font-size:.8em}
+
+/* ── 실시간 리그 순위 ────────────────────────────── */
+.standings{margin-top:26px;border:1px solid var(--line);border-radius:5px;background:var(--panel);padding:16px 17px 13px}
+.st-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:12px}
+.st-head b{font-size:15px;font-weight:800;letter-spacing:-.4px}
+.st-head span{font:600 11px/1.2 Archivo,Pre,sans-serif;letter-spacing:.06em;color:var(--muted)}
+.st-tabs{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px}
+.st-tabs button{border:1px solid var(--line);border-radius:3px;padding:7px 11px;font-size:12.5px;
+  font-weight:650;color:#c2c9c2;background:#1f2621}
+.st-tabs [aria-pressed=true]{background:var(--lime);color:#141d0e;border-color:var(--lime)}
+.sttab{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+.sttab th,.sttab td{padding:8px 4px;text-align:center;border-bottom:1px solid #262e28}
+.sttab thead th{font:600 10px/1.2 Archivo,Pre,sans-serif;letter-spacing:.09em;color:var(--muted);
+  padding-bottom:7px;white-space:nowrap}
+.sttab .tm{text-align:left;font-weight:700;padding-left:4px}
+.sttab tbody th{color:var(--paper)}
+.sttab tbody td b{color:var(--lime);font-weight:800;font-size:14px}
+.sttab tr.none{opacity:.42}
+.sttab tbody tr:last-child th,.sttab tbody tr:last-child td{border-bottom:0}
+@media(max-width:580px){.standings{padding:14px 12px 10px}.sttab{font-size:12px}
+  .sttab th,.sttab td{padding:7px 2px}.st-head{flex-direction:column;gap:3px}}
+
+/* ── 하루 전체 보기 (지나간 · 지금 · 다음 경기를 스크롤로) ───────── */
+#cards{display:block;max-height:min(70vh,760px);overflow-y:auto;overscroll-behavior:contain;
+  border:1px solid var(--line);border-radius:5px;background:#151a17;padding:10px 11px;scroll-padding:50px 0}
+.dslot{margin-bottom:9px;border:1px solid #2b332d;border-radius:4px;background:var(--panel);overflow:hidden}
+.dslot.over{opacity:.5}
+.dslot.atnow{border-color:var(--lime);box-shadow:0 0 0 1px var(--lime)}
+.dbar{display:flex;align-items:baseline;gap:10px;padding:8px 11px;background:#1f2721;border-bottom:1px solid #2b332d}
+.dbar b{font:italic 800 14px Archivo,sans-serif;color:var(--lime);letter-spacing:-.3px}
+.dbar span{font-size:12.5px;color:#cdd5cc;font-variant-numeric:tabular-nums}
+.dbar .tag{margin-left:auto;font:700 10px/1 Archivo,Pre,sans-serif;letter-spacing:.1em;
+  color:#141d0e;background:var(--lime);border-radius:2px;padding:4px 6px;font-style:normal}
+.dbar .tag.o{background:#3a443a;color:#aab4a8}
+.dgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:#2b332d}
+.dcell{display:grid;gap:3px;padding:9px 5px 10px;background:var(--panel);text-align:center;
+  border:0;border-radius:0;align-content:start}
+.dcell.done{background:#1d2619}
+.dcell.none{opacity:.38}
+.dcell.none em{font-style:normal;font-size:11px;color:var(--muted);margin-top:8px}
+.dcourt{font:800 10px/1 Archivo,Pre,sans-serif;letter-spacing:.1em;color:var(--lime)}
+.ddiv{font-size:9.5px;color:var(--muted);letter-spacing:-.2px}
+.dteam{font-size:13px;font-weight:700;letter-spacing:-.5px;color:#e4ebe2;line-height:1.25}
+.dteam.win{color:var(--lime)}
+.dteam.los{color:#7f8a7e}
+.dsc{font:italic 800 15px/1 Archivo,sans-serif;color:#9aa89a;font-variant-numeric:tabular-nums;margin:1px 0}
+.dcell.done .dsc{color:var(--paper);font-size:17px}
+.dsc em{font-style:normal;margin:0 2px;color:#6d7a6c;font-size:.8em}
+.dcere{display:flex;align-items:baseline;gap:10px;margin:9px 0;padding:8px 11px;
+  border-left:3px solid var(--lime);background:#1b2318;border-radius:0 4px 4px 0}
+.dcere i{font:italic 800 13px Archivo,sans-serif;color:var(--lime);font-variant-numeric:tabular-nums}
+.dcere b{font-size:13px;font-weight:700;color:#e4ebe2}
+.nowbtn{white-space:nowrap;border:1px solid var(--lime);border-radius:3px;padding:7px 12px;font-size:12.5px;
+  font-weight:700;color:var(--lime);background:#1a2416}
+.nowbtn:hover{background:var(--lime);color:#141d0e}
+@media(max-width:580px){
+  #cards{max-height:68vh;padding:8px}
+  .dgrid{grid-template-columns:repeat(4,1fr)}
+  .dcell{padding:8px 2px 9px}
+  .dteam{font-size:11.5px;letter-spacing:-.8px}
+  .dsc{font-size:13px}.dcell.done .dsc{font-size:15px}
+  .ddiv{font-size:8.5px;letter-spacing:-.6px}
+  .dcourt{font-size:9px}
+}
+.dmvp{display:block;margin-top:5px;padding-top:5px;border-top:1px dashed #38432f;
+  font-size:10.5px;font-weight:700;color:#dbe6cf;letter-spacing:-.3px;line-height:1.3}
+.dmvp i{display:block;font:800 8.5px/1 Archivo,Pre,sans-serif;letter-spacing:.14em;
+  color:var(--lime);font-style:normal;margin-bottom:2px}
+@media(max-width:580px){.dmvp{font-size:10px}.dmvp i{font-size:8px}}
