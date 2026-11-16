@@ -137,7 +137,8 @@ function matchDetail(event) {
 $('#cards').onclick=matchDetail;
 $('#fixture-list').onclick=matchDetail;
 for (const dialog of document.querySelectorAll('dialog')) {
-  dialog.querySelector('.close').onclick=()=>dialog.close();
+  const x = dialog.querySelector('.close');
+  if (x) x.onclick=()=>dialog.close();
   dialog.addEventListener('click',e=>{
     if(e.target!==dialog) return;
     const r=dialog.getBoundingClientRect();
@@ -157,28 +158,36 @@ $('[data-venue]').onclick=()=>{location.hash='venue'};
    기록원이 /record 에서 저장한 결과를 /api/live 로 읽어 옵니다. 12초마다 새로 고칩니다. */
 let LIVE = null, liveFail = 0;
 let stDiv = '중등남';
+let boardTab = 'rank';     /* rank | scorer | school */
+let curSchool = null;
+let schoolQ = '';
+let scorerAll = false;
 
-/* 몰수 경기는 기록원이 입력하지 않으므로 여기서 1:0 으로 채웁니다 */
+/* ── 몰수 처리 ────────────────────────────────────────────────
+   몰수 경기는 치렀든 안 치렀든 전부 「몰수 팀 0 : 상대 1」로 고정합니다.
+   그래야 기권한 팀과 이미 붙은 학교만 득을 보는 일이 없습니다.          */
+const BYID = (() => { const o = {}; for (const m of matches) o[m.id] = m; return o; })();
 const WOSCORE = (() => {
   const s = {};
-  for (const m of woMatches) {
-    const lose = FORFEIT[m.id];
-    if (lose) s[m.id] = (m.t1 === lose) ? [0,1] : [1,0];
+  for (const id of Object.keys(FORFEIT)) {
+    const m = BYID[id], lose = FORFEIT[id];
+    if (m && lose) s[id] = (m.t1 === lose) ? [0,1] : [1,0];
   }
   return s;
 })();
-/* 신길고·고잔고 몰수는 치른 경기(11/6 M030·M112·M132)까지 1:0 으로 — 라이브 센터(live.js normalize)와 같은 계산 */
-const allScores = () => {
-  const s = Object.assign({}, WOSCORE, (LIVE && LIVE.scores) || {});
-  for (const [id, lose] of Object.entries(FORFEIT)) {
-    const m = matches.find(x => x.id === id); if (!m) continue;
-    const side = m.t1 === lose ? 0 : 1, p = (s[id] || [0,0]).slice();
-    p[side] = 0; p[1-side] = Math.max(+p[1-side], 1); s[id] = p;
-  }
-  return s;
+/* 몰수 점수가 기록원 입력보다 우선입니다 */
+const allScores = () => Object.assign({}, (LIVE && LIVE.scores) || {}, WOSCORE);
+/* 몰수 팀의 득점·MVP 는 집계에서 빼냅니다 */
+const mvpOf = id => {
+  const mv = (LIVE && LIVE.mvps && LIVE.mvps[id]) || null;
+  return (mv && FORFEIT[id] && mv.team === FORFEIT[id]) ? null : mv;
 };
-const mvpOf = id => (LIVE && LIVE.mvps && LIVE.mvps[id]) || null;
-const goalsOf = id => (LIVE && LIVE.goals && LIVE.goals[id]) || null;
+const goalsOf = id => {
+  const g = (LIVE && LIVE.goals && LIVE.goals[id]) || null;
+  const lose = FORFEIT[id], m = BYID[id];
+  if (!g || !lose || !m) return g;
+  return g.filter(x => (x.t === 1 ? m.t1 : m.t2) !== lose);
+};
 
 async function pullLive() {
   try {
@@ -188,7 +197,7 @@ async function pullLive() {
     if (!d || typeof d.scores !== 'object') throw new Error('shape');
     LIVE = d; liveFail = 0;
   } catch (e) { liveFail++; }
-  showCards(); showRank(); showCourts();
+  showCards(); showRank();
 }
 
 function table(div) {
@@ -206,31 +215,227 @@ function table(div) {
     x.p++; y.p++; x.gf += a; x.ga += b; y.gf += b; y.ga += a;
     if (a > b) { x.w++; y.l++; } else if (a < b) { y.w++; x.l++; } else { x.d++; y.d++; }
   }
-  return Object.values(T)
-    .map(t => ({ ...t, pt: t.w*3 + t.d, gd: t.gf - t.ga }))
-    .sort((p,q) => q.pt-p.pt || q.gd-p.gd || q.gf-p.gf || p.team.localeCompare(q.team));
+  const rows = Object.values(T).map(t => ({ ...t, pt: t.w*3 + t.d, gd: t.gf - t.ga }));
+
+  /* 동점일 때는 그 팀들끼리 치른 경기만 따로 집계합니다 (승자승) */
+  const h2h = group => {
+    const names = new Set(group.map(t => t.team)), mini = {};
+    for (const t of group) mini[t.team] = { pt:0, gd:0 };
+    for (const m of matches) {
+      const s = S[m.id];
+      if (m.div !== div || !s || !names.has(m.t1) || !names.has(m.t2)) continue;
+      const a = +s[0], b = +s[1];
+      mini[m.t1].gd += a - b; mini[m.t2].gd += b - a;
+      if (a > b) mini[m.t1].pt += 3; else if (a < b) mini[m.t2].pt += 3;
+      else { mini[m.t1].pt++; mini[m.t2].pt++; }
+    }
+    return group.sort((p,q) =>
+      mini[q.team].pt - mini[p.team].pt ||
+      mini[q.team].gd - mini[p.team].gd ||
+      q.gd - p.gd || q.gf - p.gf || p.team.localeCompare(q.team));
+  };
+
+  const byPt = {};
+  for (const t of rows) (byPt[t.pt] = byPt[t.pt] || []).push(t);
+  return Object.keys(byPt).map(Number).sort((a,b) => b - a)
+    .flatMap(pt => byPt[pt].length > 1 ? h2h(byPt[pt]) : byPt[pt]);
+}
+
+/* ── 등번호로 선수 가려내기 ───────────────────────────────────
+   기록원이 「7 김보미」「7」「7번 김보미」를 섞어 적어도 한 선수로 셉니다.
+   같은 팀에서 그 번호로 한 번이라도 이름이 적혔으면 그 이름을 씁니다.      */
+const PRE   = /^\s*(\d{1,2})\s*번?\s*/;
+const pNo   = s => { const m = String(s||'').match(PRE); return m ? String(+m[1]) : null; };
+const pRest = s => String(s||'').replace(PRE, '').replace(/^번\s*/, '').trim();
+const tKey  = (div, team) => div + '|' + team;
+
+function nameBook() {
+  const bk = {};
+  for (const m of matches) {
+    const g = goalsOf(m.id);
+    if (!g) continue;
+    for (const x of g) {
+      const no = pNo(x.name), nm = pRest(x.name);
+      if (!no || !nm) continue;
+      const k = tKey(m.div, x.t === 1 ? m.t1 : m.t2);
+      bk[k] = bk[k] || {};
+      if (!bk[k][no]) bk[k][no] = nm;
+    }
+  }
+  return bk;
+}
+function who(bk, div, team, raw) {
+  const no = pNo(raw), rest = pRest(raw), txt = String(raw||'').trim();
+  if (!no) return { key: txt, label: txt };          /* 번호 없이 이름만 적은 경우 */
+  const k = tKey(div, team);
+  const nm = rest || (bk[k] && bk[k][no]) || '';
+  return { key: no, label: nm ? `${no} ${nm}` : `${no}번` };
+}
+
+/* 득점왕 — 몰수 팀 선수는 goalsOf 단계에서 이미 빠집니다 */
+function scorers(div) {
+  const bk = nameBook(), map = new Map();
+  for (const m of matches) {
+    if (m.div !== div) continue;
+    const g = goalsOf(m.id);
+    if (!g) continue;
+    for (const x of g) {
+      if (!String(x.name || '').trim()) continue;
+      const team = x.t === 1 ? m.t1 : m.t2;
+      const w = who(bk, div, team, x.name);
+      const k = team + '\u0000' + w.key;
+      const cur = map.get(k) || { name: w.label, team, n: 0 };
+      if (w.label.length > cur.name.length) cur.name = w.label;   /* 이름이 붙은 쪽을 보여줍니다 */
+      cur.n++; map.set(k, cur);
+    }
+  }
+  return [...map.values()]
+    .sort((a,b) => b.n - a.n || a.team.localeCompare(b.team) || a.name.localeCompare(b.name));
+}
+
+/* 학교 → 그 학교가 가진 팀(부문) 목록 */
+const SCHOOLS = (() => {
+  const o = {};
+  for (const m of matches) for (const t of [m.t1, m.t2]) (o[t] = o[t] || new Set()).add(m.div);
+  return Object.keys(o).sort((a,b) => a.localeCompare(b))
+    .map(name => ({ name, divs: [...o[name]].sort() }));
+})();
+
+const dkey = d => { const [m,x] = String(d).split('/').map(Number); return m*100 + x; };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function rankView() {
+  const rows = table(stDiv);
+  return `<div class="rtw"><table class="sttab"><thead><tr><th>순위</th><th class="tm">팀</th><th>경기</th><th>승</th><th>무</th><th>패</th><th>득점</th><th>실점</th><th>득실</th><th>승점</th></tr></thead><tbody>` +
+    rows.map((t,i) => {
+      const rk = i + 1;
+      return `<tr${t.p ? '' : ' class="none"'}><td>${rk}</td><th class="tm">${t.team}</th>
+        <td>${t.p}</td><td>${t.w}</td><td>${t.d}</td><td>${t.l}</td>
+        <td>${t.gf}</td><td>${t.ga}</td>
+        <td class="gd">${t.gd>0?'+':''}${t.gd}</td><td><b>${t.pt}</b></td></tr>`;
+    }).join('') + '</tbody></table></div>' +
+    `<div class="rulebox"><b>승점</b> 승 3점 · 무승부 1점 · 패 0점
+      <br><b>동점일 때</b> 승자승 → 골득실차 → 다득점 순으로 가립니다.
+      <br><b>기권·몰수</b> 상대 팀 1 : 0 승리로 처리합니다.</div>`;
+}
+
+function scorerView() {
+  const rows = scorers(stDiv);
+  if (!rows.length) return '<p class="empty">아직 기록된 득점이 없습니다.</p>';
+  const CAP = 20, show = scorerAll ? rows : rows.slice(0, CAP);
+  const rank = [];
+  rows.forEach((r,i) => rank[i] = (i && rows[i-1].n === r.n) ? '' : i+1);
+  return `<table class="sttab sctab"><thead><tr><th>순위</th><th class="tm">선수</th><th class="tm">학교</th><th>골</th></tr></thead><tbody>` +
+    show.map((r,i) =>
+      `<tr${i===0?' class="top"':''}><td>${rank[i]}</td><th class="tm">${esc(r.name)}</th>
+        <td class="tm sch">${esc(r.team)}</td><td><b>${r.n}</b></td></tr>`).join('') +
+    '</tbody></table>' +
+    (rows.length > CAP
+      ? `<button class="moreb" id="smore">${scorerAll
+          ? '접기' : `${rows.length - CAP}명 더 보기 (전체 ${rows.length}명)`}</button>`
+      : '');
+}
+
+function schoolView() {
+  if (curSchool) return schoolDetail(curSchool);
+  const q = schoolQ.trim();
+  const list = SCHOOLS.filter(s => !q || s.name.includes(q));
+  return `<div class="schbar"><input id="sq" type="search" enterkeyhint="search" autocomplete="off"
+      placeholder="학교 이름을 검색하세요" value="${esc(schoolQ)}"><em>${list.length}개교</em></div>` +
+    (list.length
+      ? `<div class="schgrid">${list.map(s =>
+          `<button class="schcard" data-school="${esc(s.name)}"><b>${esc(s.name)}</b>
+            <span>${s.divs.map(d => divisionNames[d]).join(' · ')}</span></button>`).join('')}</div>`
+      : '<p class="empty">그런 이름의 학교가 없습니다.</p>');
+}
+
+function schoolDetail(name) {
+  const S = allScores();
+  const mine = SCHOOLS.find(s => s.name === name);
+  if (!mine) return '<p class="empty">학교를 찾지 못했습니다.</p>';
+  let out = `<button class="schback" id="sback">← 참가교 목록</button>
+    <div class="schname">${esc(name)}</div>`;
+  for (const div of mine.divs) {
+    const rows = table(div), me = rows.find(r => r.team === name), rk = rows.indexOf(me) + 1;
+    const ms = matches.filter(m => m.div === div && (m.t1 === name || m.t2 === name))
+      .sort((a,b) => (a.date === b.date ? a.time.localeCompare(b.time) : dkey(a.date) - dkey(b.date)));
+    out += `<div class="schdiv"><h4>${divisionNames[div]}</h4>
+      <div class="schsum">
+        <div><b>${me && me.p ? rk + '위' : '–'}</b><span>순위</span></div>
+        <div><b>${me ? me.pt : 0}</b><span>승점</span></div>
+        <div><b>${me ? `${me.w}승 ${me.d}무 ${me.l}패` : '–'}</b><span>전적</span></div>
+        <div><b>${me ? (me.gd > 0 ? '+' : '') + me.gd : '–'}</b><span>골득실</span></div>
+      </div>
+      <ul class="schms">` +
+      ms.map(m => {
+        const s = S[m.id], home = m.t1 === name, opp = home ? m.t2 : m.t1;
+        let res = '<i class="wait">예정</i>', sc = '';
+        if (s) {
+          const my = +s[home ? 0 : 1], th = +s[home ? 1 : 0];
+          sc = `${my} : ${th}`;
+          res = my > th ? '<i class="w">승</i>' : my < th ? '<i class="l">패</i>' : '<i class="d">무</i>';
+        }
+        return `<li${m.wo ? ' class="wo"' : ''}><span class="d">${m.date}</span>
+          <span class="o">${esc(opp)}</span><span class="s">${sc}</span>${res}</li>`;
+      }).join('') + '</ul></div>';
+  }
+  return out;
 }
 
 function showRank() {
   if (!$('#st-body') || !$('#st-tabs')) return;   /* index.html 이 아직 옛 버전이면 건너뜁니다 */
-  $('#st-tabs').innerHTML = Object.entries(divisionNames)
+  const bt = $('#bd-tabs');
+  if (bt) bt.innerHTML = [['rank','순위'],['scorer','득점왕'],['school','학교별']]
+    .map(([k,n]) => `<button data-b="${k}" aria-pressed="${k===boardTab}">${n}</button>`).join('');
+  $('#st-tabs').hidden = boardTab === 'school';
+  $('#st-tabs').innerHTML = boardTab === 'school' ? '' : Object.entries(divisionNames)
     .map(([k,n]) => `<button data-sd="${k}" aria-pressed="${k===stDiv}">${n}</button>`).join('');
-  const rows = table(stDiv), done = rows.reduce((n,t) => n + t.p, 0) / 2;
   $('#st-body').innerHTML =
-    `<table class="sttab"><thead><tr><th>순위</th><th class="tm">팀</th><th>경기</th><th>승</th><th>무</th><th>패</th><th>득실</th><th>승점</th></tr></thead><tbody>` +
-    rows.map((t,i) => {
-      const rk = (i && rows[i-1].pt===t.pt && rows[i-1].gd===t.gd && rows[i-1].gf===t.gf) ? '' : i+1;
-      return `<tr${t.p ? '' : ' class="none"'}><td>${rk}</td><th class="tm">${t.team}</th>
-        <td>${t.p}</td><td>${t.w}</td><td>${t.d}</td><td>${t.l}</td>
-        <td>${t.gd>0?'+':''}${t.gd}</td><td><b>${t.pt}</b></td></tr>`;
-    }).join('') + '</tbody></table>';
+    boardTab === 'scorer' ? scorerView() :
+    boardTab === 'school' ? schoolView() : rankView();
+  if (boardTab === 'school' && !curSchool) {
+    const inp = $('#sq');
+    if (inp) {
+      let composing = false;
+      inp.addEventListener('compositionstart', () => composing = true);
+      inp.addEventListener('compositionend', () => { composing = false; schoolQ = inp.value; redrawSchools(); });
+      inp.addEventListener('input', () => { if (!composing) { schoolQ = inp.value; redrawSchools(); } });
+    }
+  }
+  const done = table(stDiv).reduce((n,t) => n + t.p, 0) / 2;
   if ($('#st-when')) $('#st-when').textContent = LIVE
-    ? `${done}경기 반영 · 방금 갱신`
+    ? (boardTab === 'school' ? '기록 반영 중' : `${done}경기 반영 · 방금 갱신`)
     : (liveFail ? '기록 연결을 기다리는 중입니다' : '기록을 불러오는 중…');
 }
+
+/* 검색 중에는 입력칸을 다시 그리지 않습니다 (한글 입력이 끊기지 않게) */
+function redrawSchools() {
+  const q = schoolQ.trim(), list = SCHOOLS.filter(s => !q || s.name.includes(q));
+  const g = $('.schgrid'), em = $('.schbar em'), body = $('#st-body');
+  if (em) em.textContent = list.length + '개교';
+  const html = list.length
+    ? list.map(s => `<button class="schcard" data-school="${esc(s.name)}"><b>${esc(s.name)}</b>
+        <span>${s.divs.map(d => divisionNames[d]).join(' · ')}</span></button>`).join('')
+    : '';
+  if (g) { g.innerHTML = html; g.hidden = !list.length; }
+  const old = body.querySelector('.empty');
+  if (!list.length && !old) body.insertAdjacentHTML('beforeend', '<p class="empty">그런 이름의 학교가 없습니다.</p>');
+  if (list.length && old) old.remove();
+}
+
+if ($('#bd-tabs')) $('#bd-tabs').onclick = e => {
+  const b = e.target.closest('[data-b]'); if (!b) return;
+  boardTab = b.dataset.b; curSchool = null; scorerAll = false; showRank();
+};
 if ($('#st-tabs')) $('#st-tabs').onclick = e => {
   const b = e.target.closest('[data-sd]'); if (!b) return;
-  stDiv = b.dataset.sd; showRank();
+  stDiv = b.dataset.sd; scorerAll = false; showRank();
+};
+if ($('#st-body')) $('#st-body').onclick = e => {
+  const c = e.target.closest('[data-school]');
+  if (c) { curSchool = c.dataset.school; showRank(); $('#standings').scrollIntoView({behavior:'smooth',block:'start'}); return; }
+  if (e.target.closest('#sback')) { curSchool = null; showRank(); return; }
+  if (e.target.closest('#smore')) { scorerAll = !scorerAll; showRank(); }
 };
 
 showDayInfo();
@@ -240,27 +445,48 @@ chooseCourt('A');
 pullLive();
 setInterval(pullLive, 12000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) pullLive(); });
-/* 메인 상단 A~D 구장 보드: 진행 중 → 다음 경기 → 마지막 경기 순으로 구장마다 한 경기 */
-const kstFmt = new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Seoul',year:'numeric',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hourCycle:'h23'});
-const toMin = s => { const [h,m] = s.split(':').map(Number); return h*60+m; };
-const md = d => { const [m,n] = d.split('/').map(Number); return m*100+n; };
-function showCourts() {
-  const p = Object.fromEntries(kstFmt.formatToParts(new Date()).map(x => [x.type,x.value]));
-  const today = md(Number(p.month)+'/'+Number(p.day)), mins = Number(p.hour)*60+Number(p.minute), year = Number(p.year);
-  const day = year > 2026 ? dates.at(-1) : dates.find(d => md(d) >= today) || dates.at(-1);
-  const isToday = year === 2026 && md(day) === today;
-  $('#courts-day').textContent = allDay(day);
-  $('#court-grid').innerHTML = venueNames.map((name, i) => {
-    const list = sortedMatches.filter(m => m.date === day && m.court === i+1);
-    if (!list.length) return `<a class="court-tile" href="/live.html"><span class="ct-head"><b>${name}</b><span>경기 없음</span></span></a>`;
-    const live = isToday && list.find(m => { const [s,e] = m.time.split('~').map(toMin); return mins >= s && mins < e; });
-    const next = list.find(m => !isToday || toMin(m.time.split('~')[1]) > mins);
-    const m = live || next || list.at(-1);
-    const after = list[list.indexOf(m)+1];
-    const sc = allScores()[m.id];
-    const label = live ? '경기 중' : next ? (isToday ? '다음 경기' : '첫 경기') : '종료';
-    return `<a class="court-tile${live?' on':''}" href="/live.html" aria-label="${name}구장 ${label} ${m.t1} 대 ${m.t2}"><span class="ct-head"><b>${name}</b><span>${label}</span><time>${kick(m)}</time></span><span class="ct-team">${m.t1}</span><span class="ct-score">${sc ? sc[0]+' : '+sc[1] : 'VS'}</span><span class="ct-team">${m.t2}</span><span class="ct-foot">${divisionNames[m.div]}${after ? ' · 다음 '+kick(after) : ''}</span></a>`;
-  }).join('');
-}
-showCourts();
-setInterval(showCourts, 60000);   /* 점수는 pullLive(12초)가 갱신, 이건 시각이 바뀌어 '경기 중'이 넘어가는 것만 */
+
+/* ── 풋살화 빌리기 ─────────────────────────────────────────
+   본부에 신청만 보냅니다. 다른 사람의 신청 내용은 읽어오지 않습니다. */
+(function shoe() {
+  const dlg = $('#shoeDlg'), btn = $('#shoeBtn');
+  if (!dlg || !btn) return;
+  const teams = [...new Set(matches.flatMap(m => [m.t1, m.t2]))].sort((a,b) => a.localeCompare(b));
+  const DOW = {}; for (const m of matches) DOW[m.date] = m.dow;
+  const days  = [...new Set(matches.map(m => m.date))]
+    .sort((a,b) => dkey(a) - dkey(b)).filter(d => dkey(d) >= dkey(todayKey()));
+  const fill = (sel, arr, val) => {
+    sel.innerHTML = arr.map(([v,t]) => `<option value="${v}">${t}</option>`).join('');
+    if (val) sel.value = val;
+  };
+  btn.onclick = () => {
+    fill($('#sSchool'), teams.map(t => [t,t]));
+    fill($('#sSize'), Array.from({length:13}, (_,i) => { const n = 230 + i*5; return [n, n]; }), 250);
+    const ds = (days.length ? days : [...new Set(matches.map(m => m.date))].sort((a,b)=>dkey(a)-dkey(b)));
+    fill($('#sDate'), ds.map(d => [d, d + ' (' + (DOW[d] || '') + ')']));
+    $('#sAgree').checked = false; $('#sErr').hidden = true;
+    $('#sName').value = ''; $('#sClass').value = '';
+    dlg.showModal();
+  };
+  $('#sSubmit').onclick = async e => {
+    e.preventDefault();
+    const name = $('#sName').value.trim(), err = $('#sErr');
+    const fail = msg => { err.textContent = msg; err.hidden = false; };
+    if (!name) return fail('이름을 적어 주세요.');
+    if (!$('#sAgree').checked) return fail('반납 확인에 체크해 주세요.');
+    const payload = { type:'shoe', request:true, id:'S' + Date.now().toString(36),
+      value: { school:$('#sSchool').value, name, klass:$('#sClass').value.trim(),
+               size:Number($('#sSize').value), date:$('#sDate').value,
+               status:'신청', at:new Date().toISOString() } };
+    $('#sSubmit').disabled = true;
+    try {
+      const r = await fetch('/api/data', { method:'POST',
+        headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+      const j = await r.json();
+      if (!j || !j.ok) throw new Error();
+      dlg.close(); alert('신청했습니다. 경기 전에 본부에서 받아 가세요.');
+    } catch (_) {
+      fail('신청이 저장되지 않았습니다. 잠시 뒤 다시 눌러 주세요.');
+    } finally { $('#sSubmit').disabled = false; }
+  };
+})();

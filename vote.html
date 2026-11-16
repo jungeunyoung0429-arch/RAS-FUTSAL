@@ -54,6 +54,10 @@ h1 em{font-style:normal;color:var(--accent)}
 .tot{margin-top:14px;font-size:12.5px;color:var(--mute);text-align:center}
 .warn{margin-top:16px;padding:12px 14px;border-radius:12px;background:rgba(240,168,74,.09);
   border:1px solid rgba(240,168,74,.3);font-size:12.5px;line-height:1.65;color:#E8C48E}
+.rtabs{display:flex;gap:6px;margin:4px 0 16px}
+.rtabs button{flex:1;padding:10px 6px;border-radius:10px;border:1px solid var(--line);
+  background:var(--card);color:var(--mute);font-size:13.5px;font-weight:700;font-family:inherit;cursor:pointer}
+.rtabs button.on{background:var(--accent);color:#10140F;border-color:var(--accent)}
 a.back{display:inline-block;margin-top:24px;font-size:13px;color:var(--mute);text-decoration:none}
 .wsep{display:flex;align-items:center;gap:10px;margin:7px 2px 1px;font-size:11.5px;
   font-weight:700;color:var(--warm);letter-spacing:.02em}
@@ -106,28 +110,38 @@ const early = Date.now() < OPEN_AT.getTime() && !Q.has("preview") && !Q.has("r")
 let view = early ? "soon" : (Q.has("r") ? "res" : (seen() ? "done" : "form"));
 let tally = null;
 
+let votes = [];                 /* 원자료 — 부문별로 다시 셀 수 있게 보관합니다 */
+let resFilter = "";             /* "" 전체 · "중등" · "고등" */
+const lvl = s => /고$/.test(String(s||"")) ? "고등" : "중등";   /* 학교 이름 끝 글자로 가릅니다 */
+
 async function load(){
   try{
     const r = await fetch("/api/data?cb=" + Date.now());
     const d = await r.json();
-    const t = { wet:0, pk:0, delay:0, schools:new Set(), people:0,
-                wd:{ wd_today:new Map(), wd_all:new Map() }, wdn:0 };
-    Object.values(d.refs || {}).forEach(v => {
-      if(!v || v.kind !== "vote" || v.topic !== TOPIC) return;
-      const n = Math.max(1, Math.min(9, +v.n || 1));
-      if(v.school) t.schools.add(v.school);
-      if(WDKEYS.indexOf(v.choice) >= 0){           /* 기권 희망 — 학교별로 모음 */
-        const m = t.wd[v.choice];
-        const k = v.school || "(학교 미기재)";
-        m.set(k, (m.get(k) || 0) + n); t.wdn += n;
-        return;
-      }
-      if(t[v.choice] === undefined) return;
-      t[v.choice] += n; t.people += n;
-    });
-    tally = t;
+    votes = Object.values(d.refs || {})
+      .filter(v => v && v.kind === "vote" && v.topic === TOPIC)
+      .map(v => ({ school: v.school || "", choice: v.choice,
+                   n: Math.max(1, Math.min(9, +v.n || 1)) }));
+    tally = calc(resFilter);
   }catch(e){ tally = null; }
   render();
+}
+
+function calc(f){
+  const t = { wet:0, pk:0, delay:0, schools:new Set(), people:0,
+              wd:{ wd_today:new Map(), wd_all:new Map() }, wdn:0 };
+  for (const v of votes){
+    if (f && lvl(v.school) !== f) continue;
+    if (v.school) t.schools.add(v.school);
+    if (WDKEYS.indexOf(v.choice) >= 0){
+      const m = t.wd[v.choice], k = v.school || "(학교 미기재)";
+      m.set(k, (m.get(k) || 0) + v.n); t.wdn += v.n;
+      continue;
+    }
+    if (t[v.choice] === undefined) continue;
+    t[v.choice] += v.n; t.people += v.n;
+  }
+  return t;
 }
 
 function head(){
@@ -220,10 +234,16 @@ function renderSoon(){
 }
 
 function renderRes(){
+  const TABS = [["","전체"],["중등","중등부"],["고등","고등부"]];
   $("#app").innerHTML = `<div class="eyebrow"><i></i>RESULT · 11월 14일</div>
     <h1>투표 <em>집계</em></h1>
-    <p class="lead">10초마다 새로 고쳐집니다.</p>${bars()}
+    <p class="lead">10초마다 새로 고쳐집니다.</p>
+    <div class="rtabs" id="rt">${TABS.map(([k,n]) =>
+      `<button data-f="${k}"${resFilter===k?' class="on"':''}>${n}</button>`).join("")}</div>
+    ${bars()}
     <a class="back" href="/vote">← 투표 화면</a>`;
+  $("#rt").onclick = e => { const b = e.target.closest("[data-f]"); if(!b) return;
+    resFilter = b.dataset.f; tally = calc(resFilter); render(); };
 }
 
 function render(){ ({form:renderForm, done:renderDone, res:renderRes, soon:renderSoon})[view](); }
