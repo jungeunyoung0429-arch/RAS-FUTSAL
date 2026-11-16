@@ -16,7 +16,7 @@
 
 <dialog id="shoeDlg" class="shoedlg"><form method="dialog"><div class="shd"><h3>풋살화 빌리기</h3><button value="cancel" aria-label="닫기">✕</button></div>
 <div class="shb">
-<p class="shnote">여분의 풋살화를 본부에서 빌려드립니다. 수량이 넉넉하지 않으니 꼭 필요한 경우에만 신청해 주세요.</p>
+<p class="shnote">여분의 풋살화를 본부에서 빌려드립니다. 수량이 넉넉하지 않으니 꼭 필요한 경우에만 신청해 주세요.<br>사이즈는 <b>230~260mm</b>까지 준비되어 있습니다.</p>
 <div class="shf"><label for="sSchool">학교</label><select id="sSchool"></select></div>
 <div class="shf2">
   <div class="shf"><label for="sName">이름</label><input id="sName" autocomplete="off" placeholder="홍길동"></div>
@@ -33,4 +33,10 @@
 </form></dialog>
 
 
+<script>
+/* 풋살화 사이즈 상한: 260mm 초과 선택지는 표시하지 않음 */
+(function(){var s=document.getElementById('sSize');if(!s)return;var MAX=260;
+function trim(){Array.prototype.slice.call(s.options).forEach(function(o){var v=parseInt(o.value||o.textContent,10);if(v>MAX)o.remove();});}
+new MutationObserver(trim).observe(s,{childList:true});trim();})();
+</script>
 </body></html>
