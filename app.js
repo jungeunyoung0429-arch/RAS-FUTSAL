@@ -375,7 +375,9 @@ function schoolDetail(name) {
           sc = `${my} : ${th}`;
           res = my > th ? '<i class="w">승</i>' : my < th ? '<i class="l">패</i>' : '<i class="d">무</i>';
         }
-        return `<li${m.wo ? ' class="wo"' : ''}><span class="d">${m.date}</span>
+        return `<li${m.wo ? ' class="wo"' : ''}><span class="d"><b>${m.date}</b>${m.wo
+            ? '<i>경기 없음</i>'
+            : `<i>${m.time.slice(0,5)} · ${venueNames[m.court-1]}구장</i>`}</span>
           <span class="o">${esc(opp)}</span><span class="s">${sc}</span>${res}</li>`;
       }).join('') + '</ul></div>';
   }
