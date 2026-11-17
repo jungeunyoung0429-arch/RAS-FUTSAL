@@ -26,7 +26,7 @@ function normalize(record){
     if(!forfeit[m.id])continue;
     const side=m.t1===forfeit[m.id]?0:1;
     const pair=record.scores[m.id]||[0,0];
-    pair[side]=0; pair[1-side]=Math.max(pair[1-side],1);record.scores[m.id]=pair;
+    pair[side]=0; pair[1-side]=1;record.scores[m.id]=pair;   /* 몰수는 전부 1:0 — 메인 순위표와 같은 규칙 */
     record.goals[m.id]=(record.goals[m.id]||[]).filter(g=>g.t!==side+1);
   }
   return record;
