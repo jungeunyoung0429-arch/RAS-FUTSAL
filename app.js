@@ -8,7 +8,7 @@ let page = 0;
 const groupSize = 3;
 const allDay = date => date.replace('/','.') + ' (' + dow[date] + ')';
 const kick = match => match.time.split('~')[0];
-const FORFEIT = {"M025": "고잔고", "M026": "신길고", "M030": "신길고", "M035": "신길고", "M085": "신길고", "M091": "고잔고", "M095": "신길고", "M103": "신길고", "M112": "신길고", "M126": "고잔고", "M132": "신길고", "M139": "신길고", "M145": "신길고"};
+const FORFEIT = {"M025":"고잔고","M026":"신길고","M027":"성안고","M030":"신길고","M033":"성안고","M035":"신길고","M084":"성안고","M085":"신길고","M090":"성안고","M091":"고잔고","M095":"신길고","M097":"성안고","M103":"신길고","M112":"신길고","M116":"성안고","M126":"고잔고","M132":"신길고","M139":"신길고","M145":"신길고"};
 const played = matches.filter(m => !m.wo);
 const woMatches = matches.filter(m => m.wo);
 const CEREMONY = {
