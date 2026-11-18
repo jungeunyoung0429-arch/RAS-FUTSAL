@@ -20,7 +20,7 @@ function nearestDay(t){
   return days.find(d=>numericDate(d)>=numericDate(t.day))||days.at(-1);
 }
 let day=nearestDay(now()), pinned=false, division='중등남', openCourt=0, data=null, loading=false, stale=false;
-const forfeit={'M025':'고잔고','M026':'신길고','M027':'성안고','M030':'신길고','M033':'성안고','M035':'신길고','M084':'성안고','M085':'신길고','M090':'성안고','M091':'고잔고','M095':'신길고','M097':'성안고','M103':'신길고','M112':'신길고','M116':'성안고','M126':'고잔고','M132':'신길고','M139':'신길고','M145':'신길고'};
+const forfeit={'M025':'고잔고','M026':'신길고','M027':'성안고','M030':'신길고','M033':'성안고','M035':'신길고','M036':'고잔고','M084':'성안고','M085':'신길고','M090':'성안고','M091':'고잔고','M095':'신길고','M097':'성안고','M103':'신길고','M106':'고잔고','M112':'신길고','M116':'성안고','M119':'고잔고','M126':'고잔고','M132':'신길고','M139':'신길고','M145':'신길고'};
 function normalize(record){
   for(const m of matches){
     if(!forfeit[m.id])continue;
