@@ -281,6 +281,13 @@ const SAMEPLAYER = {
   "중등여|해솔중|김보민": [4, 12]
 };
 
+/* 번호 없이 이름만 적힌 골을 누구 것으로 볼지.
+   같은 팀에 동명이인이 있어 자동으로 못 가리는 경우만 적습니다.
+   「부문|학교|이름」: 등번호                                      */
+const NAMEONLY = {
+  "중등여|해솔중|김다율": 9
+};
+
 /* 득점왕 — 몰수 팀 선수는 goalsOf 단계에서 이미 빠집니다 */
 function scorers(div) {
   const bk = nameBook(), map = new Map();
@@ -310,6 +317,25 @@ function scorers(div) {
     nos.forEach(no => map.delete(team + '\u0000' + no));
     map.set(team + '\u0000' + nos.join('+'),
             { name: nm, team, n: hits.reduce((s, v) => s + v.n, 0) });
+  }
+
+  /* 번호 없이 이름만 적힌 기록은 따로 잡힙니다.
+     그 이름을 쓰는 번호 선수가 한 명뿐이면 (동명이인이 아니면) 그쪽으로 합칩니다. */
+  {
+    const ent = [...map.entries()].map(([k, v]) => ({ k, v, no: k.split('\u0000')[1] }));
+    for (const e of ent) {
+      if (/^\d/.test(e.no)) continue;                 /* 번호가 있는 기록은 건너뜀 */
+      const nm = pRest(e.v.name) || e.v.name;
+      let hits = ent.filter(o => o !== e && /^\d/.test(o.no)
+                               && o.v.team === e.v.team && pRest(o.v.name) === nm);
+      if (hits.length > 1) {                          /* 동명이인 — 지정해 둔 번호가 있으면 그쪽으로 */
+        const pick = NAMEONLY[div + '|' + e.v.team + '|' + nm];
+        hits = pick == null ? [] : hits.filter(o => String(o.no) === String(pick));
+      }
+      if (hits.length !== 1) continue;                /* 가릴 수 없으면 합치지 않습니다 */
+      hits[0].v.n += e.v.n;
+      map.delete(e.k);
+    }
   }
 
   /* 같은 팀에 같은 이름이 둘 이상이면 (동명이인) 등번호를 붙여 구분합니다 */
