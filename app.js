@@ -269,8 +269,17 @@ function who(bk, div, team, raw) {
   if (!no) return { key: txt, label: txt };          /* 번호 없이 이름만 적은 경우 */
   const k = tKey(div, team);
   const nm = rest || (bk[k] && bk[k][no]) || '';
-  return { key: no, label: nm ? `${no} ${nm}` : `${no}번` };
+  /* 학교가 함께 나오므로 이름만 보여줍니다. 이름을 모르는 기록만 번호로 남깁니다. */
+  return { key: no, label: nm || `${no}번` };
 }
+
+/* ── 등번호가 바뀐 선수 ────────────────────────────────────────
+   시즌 중 조끼를 바꿔 입어 번호가 달라진 선수를 한 명으로 셉니다.
+   「부문|학교|이름」: [쓰던 번호들]  — 확인된 경우만 적어 주세요.
+   (같은 팀 동명이인이 있을 수 있어 이름만으로 자동 합산하지 않습니다)   */
+const SAMEPLAYER = {
+  "중등여|해솔중|김보민": [4, 12]
+};
 
 /* 득점왕 — 몰수 팀 선수는 goalsOf 단계에서 이미 빠집니다 */
 function scorers(div) {
@@ -289,26 +298,28 @@ function scorers(div) {
       cur.n++; map.set(k, cur);
     }
   }
-  /* 시즌 중 등번호가 바뀐 선수는 번호가 달라 두 명으로 잡힙니다.
-     같은 팀에서 이름이 같으면 한 사람으로 합치고, 번호는 떼고 이름만 보여줍니다. */
-  const byName = new Map();
-  for (const v of map.values()) {
-    const bare = pRest(v.name);
-    if (!bare) continue;
-    const k = v.team + '\u0000' + bare;
-    (byName.get(k) || byName.set(k, []).get(k)).push(v);
+  /* 시즌 중 등번호가 바뀐 선수를 합칩니다.
+     같은 팀에 동명이인이 있을 수 있어 이름만으로 자동 합산하지 않고,
+     확인된 경우만 아래에 적습니다. 「부문|학교|이름」: [바뀐 번호들] */
+  const sameKeys = Object.entries(SAMEPLAYER)
+    .filter(([k]) => k.startsWith(div + '|'))
+    .map(([k, nos]) => [k.split('|')[1], k.split('|')[2], nos.map(String)]);
+  for (const [team, nm, nos] of sameKeys) {
+    const hits = nos.map(no => map.get(team + '\u0000' + no)).filter(Boolean);
+    if (hits.length < 2) continue;
+    nos.forEach(no => map.delete(team + '\u0000' + no));
+    map.set(team + '\u0000' + nos.join('+'),
+            { name: nm, team, n: hits.reduce((s, v) => s + v.n, 0) });
   }
-  const merged = [];
-  const eaten = new Set();
-  for (const [k, group] of byName) {
-    if (group.length < 2) continue;
-    const bare = k.split('\u0000')[1];
-    merged.push({ name: bare, team: group[0].team,
-                  n: group.reduce((s,v) => s + v.n, 0) });
-    group.forEach(v => eaten.add(v));
+
+  /* 같은 팀에 같은 이름이 둘 이상이면 (동명이인) 등번호를 붙여 구분합니다 */
+  const out = [...map.entries()].map(([k, v]) => ({ ...v, no: k.split('\u0000')[1] }));
+  const cnt = {};
+  for (const v of out) { const k = v.team + '|' + v.name; cnt[k] = (cnt[k] || 0) + 1; }
+  for (const v of out) {
+    if (cnt[v.team + '|' + v.name] > 1 && /^\d/.test(v.no)) v.name = `${v.no} ${v.name}`;
   }
-  return [...[...map.values()].filter(v => !eaten.has(v)), ...merged]
-    .sort((a,b) => b.n - a.n || a.team.localeCompare(b.team) || a.name.localeCompare(b.name));
+  return out.sort((a,b) => b.n - a.n || a.team.localeCompare(b.team) || a.name.localeCompare(b.name));
 }
 
 /* 학교 → 그 학교가 가진 팀(부문) 목록 */
