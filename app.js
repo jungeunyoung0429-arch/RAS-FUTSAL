@@ -289,7 +289,25 @@ function scorers(div) {
       cur.n++; map.set(k, cur);
     }
   }
-  return [...map.values()]
+  /* 시즌 중 등번호가 바뀐 선수는 번호가 달라 두 명으로 잡힙니다.
+     같은 팀에서 이름이 같으면 한 사람으로 합치고, 번호는 떼고 이름만 보여줍니다. */
+  const byName = new Map();
+  for (const v of map.values()) {
+    const bare = pRest(v.name);
+    if (!bare) continue;
+    const k = v.team + '\u0000' + bare;
+    (byName.get(k) || byName.set(k, []).get(k)).push(v);
+  }
+  const merged = [];
+  const eaten = new Set();
+  for (const [k, group] of byName) {
+    if (group.length < 2) continue;
+    const bare = k.split('\u0000')[1];
+    merged.push({ name: bare, team: group[0].team,
+                  n: group.reduce((s,v) => s + v.n, 0) });
+    group.forEach(v => eaten.add(v));
+  }
+  return [...[...map.values()].filter(v => !eaten.has(v)), ...merged]
     .sort((a,b) => b.n - a.n || a.team.localeCompare(b.team) || a.name.localeCompare(b.name));
 }
 
